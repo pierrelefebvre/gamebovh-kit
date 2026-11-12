@@ -19,8 +19,8 @@ On est à une soirée d'entreprise : les joueurs ont un téléphone dans une mai
 | Durée d'une partie | 2 à 5 minutes |
 | Règles | comprises en moins de 30 secondes, résumées en 3 lignes dans le jeu |
 | Joueurs | 1 à 4. Le multijoueur est un plus, pas une obligation |
-| Appareils | jouable au doigt sur téléphone **et** au clavier sur ordinateur |
-| Langue | tout le texte affiché est en français |
+| Appareils | jouable au doigt sur téléphone et tablette **et** au clavier sur ordinateur (AZERTY comme QWERTY) |
+| Langues | tout le texte affiché existe **en français et en anglais** : la console choisit selon le joueur |
 | Thème | hiver, ski, montagne, neige ou fêtes de fin d'année |
 | Technique | une cartouche GameBOVH, en respectant **toutes** les règles de [`ETUDIANTS.md`](ETUDIANTS.md) |
 | Originalité | un jeu de votre invention : pas de copie d'un jeu existant (nom, personnages, graphismes, musique) |
@@ -58,7 +58,7 @@ Puis délibération et annonce du **podium des 3 meilleurs jeux**.
 | --- | --- |
 | Envie de rejouer | Une partie de plus ? Envie de battre son record, de défier les autres ? |
 | Jouabilité | Commandes agréables au doigt et au clavier, difficulté bien dosée, règles claires |
-| Respect du cadre | Durée, thème, français, `pnpm check` sans erreur, aucun fichier fourni modifié |
+| Respect du cadre | Durée, thème, français et anglais, `pnpm check` sans erreur, aucun fichier fourni modifié |
 | Finition | Graphismes, sons, retours visuels, aucun plantage |
 | Code | Lisible, organisé, commenté là où c'est utile |
 | Soutenance | Clarté de la démonstration et de la présentation, travail d'équipe |

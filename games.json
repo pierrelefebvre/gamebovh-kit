@@ -6,6 +6,10 @@
       "team": "Équipe GameBOVH",
       "version": "1.0.0",
       "description": "La cartouche modèle. Attrape les flocons avec ton bonnet à pompon.",
+      "en": {
+        "name": "Snowflake Catcher",
+        "description": "The template cartridge. Catch the snowflakes with your bobble hat."
+      },
       "minPlayers": 1,
       "maxPlayers": 1,
       "module": "games/_template/src/index.tsx"
@@ -16,6 +20,10 @@
       "team": "Équipe GameBOVH",
       "version": "1.0.0",
       "description": "Dévale la piste, passe toutes les portes, bats le chrono. Jusqu'à 4 skieurs sur la même piste.",
+      "en": {
+        "name": "Slalom Express",
+        "description": "Race down the slope, go through every gate, beat the clock. Up to 4 skiers on the same slope."
+      },
       "minPlayers": 1,
       "maxPlayers": 4,
       "module": "games/slalom/src/index.tsx"
@@ -26,6 +34,10 @@
       "team": "Équipe GameBOVH",
       "version": "1.0.0",
       "description": "Rouges contre bleus : vise, lance, abrite-toi. Première équipe à 5 touches gagne.",
+      "en": {
+        "name": "Snowball Fight",
+        "description": "Red vs blue: aim, throw, take cover. First team to 5 hits wins."
+      },
       "minPlayers": 1,
       "maxPlayers": 4,
       "module": "games/snowball/src/index.tsx"

@@ -642,6 +642,132 @@ button {
   }
 }
 
+/* Tablette à l'horizontale et ordinateur : console en largeur,
+   croix à gauche, A et B à droite, écran au centre */
+@media (orientation: landscape) and (min-height: 521px) {
+  .console {
+    position: relative;
+    inset: auto;
+    width: min(1180px, calc(100vw - 48px), calc((100dvh - 90px) * 1.75));
+    height: min(calc(100dvh - 90px), 680px);
+    margin-top: 66px;
+    border-radius: 30px 30px 80px 30px;
+    padding: 18px 26px 20px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(190px, 1fr) minmax(0, 2.5fr) minmax(190px, 1fr);
+    grid-template-areas:
+      'top top top'
+      'left screen right'
+      'left brand right';
+    column-gap: 22px;
+    box-shadow:
+      inset 0 -10px 0 #c3cdea,
+      inset 0 2px 0 #ffffff,
+      0 40px 80px rgba(1, 6, 50, 0.6);
+  }
+  .console::after {
+    display: none;
+  }
+  .console-top {
+    grid-area: top;
+    padding: 4px 6px 10px;
+  }
+  .screen-bezel {
+    grid-area: screen;
+    padding: clamp(12px, 2vw, 20px);
+  }
+  .brand {
+    grid-area: brand;
+    padding-top: 8px;
+  }
+  .logo {
+    font-size: clamp(26px, 3.2vw, 40px);
+  }
+  .tagline,
+  .credits {
+    font-size: clamp(7px, 0.9vw, 10px);
+  }
+  .speaker {
+    display: none;
+  }
+  .controls {
+    display: contents;
+  }
+  .controls-left {
+    grid-area: left;
+    position: relative;
+    inset: auto;
+    place-self: center;
+  }
+  .dpad {
+    width: clamp(120px, 24dvh, 168px);
+  }
+  .controls-right {
+    grid-area: right;
+    position: relative;
+    inset: auto;
+    place-self: center;
+    width: clamp(140px, 27dvh, 180px);
+    height: clamp(116px, 22dvh, 150px);
+  }
+  .action {
+    width: clamp(54px, 10dvh, 70px);
+  }
+  .controls-bottom {
+    grid-area: right;
+    position: relative;
+    inset: auto;
+    transform: none;
+    align-self: end;
+    justify-self: center;
+    margin-bottom: 26px;
+  }
+}
+
+/* Touches du clavier sous les boutons : seulement avec une souris (ordinateur) */
+.keycap {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .keycap {
+    display: block;
+    position: absolute;
+    left: 50%;
+    padding: 2px 5px 1px;
+    border: 1px solid #b9c3e3;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: #f4f7ff;
+    color: var(--shell-ink);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .action .keycap {
+    top: calc(100% + 8px);
+    transform: translateX(-50%);
+  }
+  .pill .keycap {
+    top: 38px;
+    transform: translateX(-50%) rotate(24deg);
+  }
+  .keycap-dpad {
+    position: absolute;
+    top: calc(100% + 8px);
+    transform: translateX(-50%);
+  }
+  .controls-left {
+    /* la touche affichée sous la croix sert de repère */
+    overflow: visible;
+  }
+}
+
 /* ==========================================================================
    Écrans de la console (zone logique 240 x 216)
    ========================================================================== */

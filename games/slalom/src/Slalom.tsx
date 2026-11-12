@@ -19,6 +19,7 @@ import {
   useRoomPlayers,
   useScoreGossip,
   type GameProps,
+  defineTexts,
 } from '@gamebovh/sdk';
 import { GATE_WIDTH, generateCourse } from './course.ts';
 import { drawFlag, drawOffscreenMarker, drawSkier, drawTree, type Pose } from './sprites.ts';
@@ -53,7 +54,29 @@ interface Ghost {
   finishMs: number | null;
 }
 
+const TEXTS = defineTexts({
+  fr: {
+    missed: 'RATÉE +3s',
+    ouch: 'AÏE !',
+    gate: (n: number, total: number) => `PORTE ${n}/${total}`,
+    go: 'PARTEZ !',
+    controls: 'A : SCHUSS  B : FREIN',
+    finish: 'ARRIVÉE !',
+    missedCount: (n: number) => `${n} porte(s) ratée(s)`,
+  },
+  en: {
+    missed: 'MISSED +3s',
+    ouch: 'OUCH!',
+    gate: (n: number, total: number) => `GATE ${n}/${total}`,
+    go: 'GO!',
+    controls: 'A: TUCK  B: BRAKE',
+    finish: 'FINISH!',
+    missedCount: (n: number) => `${n} gate(s) missed`,
+  },
+});
+
 export function Slalom({ ctx }: GameProps<SlalomMsg>) {
+  const t = TEXTS[ctx.lang];
   const { width, height } = ctx.screen;
   const { canvasProps, get2d } = useCanvas(ctx);
   const players = useRoomPlayers(ctx);
@@ -179,7 +202,7 @@ export function Slalom({ ctx }: GameProps<SlalomMsg>) {
       } else {
         s.missed++;
         s.penalty += MISSED_GATE_PENALTY_MS;
-        flash('RATÉE +3s');
+        flash(t.missed);
         ctx.audio.play('back');
         ctx.audio.vibrate(80);
       }
@@ -191,7 +214,7 @@ export function Slalom({ ctx }: GameProps<SlalomMsg>) {
       for (const tree of course.trees) {
         if (Math.abs(tree.y - s.y) < 5 && Math.abs(tree.x - s.x) < tree.size / 2 + 2) {
           s.crash = CRASH_MS;
-          flash('AÏE !');
+          flash(t.ouch);
           ctx.audio.play('hit');
           ctx.audio.vibrate([60, 40, 60]);
           break;
@@ -305,7 +328,7 @@ export function Slalom({ ctx }: GameProps<SlalomMsg>) {
     g.fillRect(0, 0, width, 12);
     const shownTime = s.finishMs ?? s.elapsed + s.penalty;
     drawText(g, formatTime(shownTime), 3, 2, { color: PALETTE.snow });
-    drawText(g, `PORTE ${Math.min(s.gate, course.gates.length)}/${course.gates.length}`, width - 3, 2, {
+    drawText(g, t.gate(Math.min(s.gate, course.gates.length), course.gates.length), width - 3, 2, {
       color: PALETTE.gold,
       align: 'right',
     });
@@ -318,8 +341,8 @@ export function Slalom({ ctx }: GameProps<SlalomMsg>) {
     // Compte à rebours
     if (s.phase === 'countdown') {
       const n = Math.ceil(s.countdown / 1000);
-      drawText(g, n > 0 ? String(n) : 'PARTEZ !', width / 2, 100, { size: 16, color: PALETTE.red, align: 'center', shadow: PALETTE.night });
-      drawText(g, 'A : SCHUSS  B : FREIN', width / 2, 130, { color: PALETTE.night, align: 'center' });
+      drawText(g, n > 0 ? String(n) : t.go, width / 2, 100, { size: 16, color: PALETTE.red, align: 'center', shadow: PALETTE.night });
+      drawText(g, t.controls, width / 2, 130, { color: PALETTE.night, align: 'center' });
     }
 
     // Arrivée : classement de la manche
@@ -339,7 +362,7 @@ export function Slalom({ ctx }: GameProps<SlalomMsg>) {
     const top = 100;
     g.fillStyle = 'rgba(11, 30, 63, 0.88)';
     g.fillRect(30, top, width - 60, 22 + rows.length * 12);
-    drawText(g, 'ARRIVÉE !', width / 2, top + 5, { color: PALETTE.gold, align: 'center' });
+    drawText(g, t.finish, width / 2, top + 5, { color: PALETTE.gold, align: 'center' });
     rows.forEach((r, i) => {
       const y = top + 18 + i * 12;
       g.fillStyle = r.color;
@@ -348,7 +371,7 @@ export function Slalom({ ctx }: GameProps<SlalomMsg>) {
       drawText(g, r.time === null ? '...' : formatTime(r.time), width - 36, y, { color: PALETTE.snow, align: 'right' });
     });
     if (s.missed) {
-      drawText(g, `${s.missed} porte(s) ratée(s)`, width / 2, top + 26 + rows.length * 12, {
+      drawText(g, t.missedCount(s.missed), width / 2, top + 26 + rows.length * 12, {
         color: PALETTE.ice,
         align: 'center',
       });

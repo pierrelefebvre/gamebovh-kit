@@ -5,6 +5,7 @@ import {
   type GameContext,
   type GameManifest,
   type GameResult,
+  type Lang,
   type MultiplayerApi,
   type Player,
   type Room,
@@ -23,6 +24,7 @@ export interface ContextServices {
   net: NetClient;
   storage: GameStorage;
   player: { id: string; nickname: string };
+  lang: Lang;
 }
 
 export interface ContextHooks {
@@ -156,6 +158,7 @@ export function createGameSession(
     manifest,
     screen: { width: SCREEN_WIDTH, height: SCREEN_HEIGHT },
     player: { ...services.player },
+    lang: services.lang,
     seed,
     input,
     lifecycle,

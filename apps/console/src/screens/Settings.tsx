@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { canPromptInstall, isInstalled, isIos, onInstallChange, promptInstall } from '../runtime/install.ts';
-import { useServices, useSettings } from '../runtime/services.tsx';
+import { useKeyboardLayout, useServices, useSettings, type Settings } from '../runtime/services.tsx';
+import { useKeyLabels, useLang, useT } from '../i18n.ts';
 import { Frame, Hint, MenuList } from './ui.tsx';
 
 function toggleFullscreen() {
@@ -13,6 +14,15 @@ function toggleFullscreen() {
 export function SettingsScreen({ onBack, onNickname }: { onBack: () => void; onNickname: () => void }) {
   const services = useServices();
   const settings = useSettings();
+  const t = useT();
+  const lang = useLang();
+  const layout = useKeyboardLayout();
+  const keys = useKeyLabels();
+  const yesNo = (on: boolean) => (on ? t.yes : t.no);
+  const LANG_CYCLE: Settings['language'][] = ['auto', 'fr', 'en'];
+  const KEYBOARD_CYCLE: Settings['keyboard'][] = ['auto', 'azerty', 'qwerty'];
+  const next = <T,>(list: T[], value: T) => list[(list.indexOf(value) + 1) % list.length];
+  const langName = { fr: 'FRANÇAIS', en: 'ENGLISH' } as const;
   const [installable, setInstallable] = useState(canPromptInstall());
   const [iosHint, setIosHint] = useState(false);
   useEffect(() => onInstallChange(() => setInstallable(canPromptInstall())), []);
@@ -20,49 +30,59 @@ export function SettingsScreen({ onBack, onNickname }: { onBack: () => void; onN
 
   return (
     <Frame
-      title="RÉGLAGES"
+      title={t.settingsTitle}
       footer={
         <>
-          <Hint>A modifier</Hint>
-          <Hint>B retour</Hint>
+          <Hint>{t.hintChange}</Hint>
+          <Hint>{t.hintBack}</Hint>
         </>
       }
     >
       <MenuList
         onBack={onBack}
         items={[
-          { label: 'Pseudo', detail: settings.nickname, onSelect: onNickname },
+          { label: t.nickname, detail: settings.nickname, onSelect: onNickname },
           {
-            label: 'Son',
-            detail: settings.muted ? 'NON' : 'OUI',
+            label: t.language,
+            detail: settings.language === 'auto' ? t.langAuto(lang.toUpperCase()) : langName[settings.language],
+            onSelect: () => services.update({ language: next(LANG_CYCLE, settings.language) }),
+          },
+          {
+            label: t.keyboard,
+            detail: settings.keyboard === 'auto' ? t.langAuto(layout.toUpperCase()) : settings.keyboard.toUpperCase(),
+            onSelect: () => services.update({ keyboard: next(KEYBOARD_CYCLE, settings.keyboard) }),
+          },
+          {
+            label: t.sound,
+            detail: yesNo(!settings.muted),
             onSelect: () => {
               services.update({ muted: !settings.muted });
               if (settings.muted) services.audio.play('confirm');
             },
           },
           {
-            label: 'Vibration',
-            detail: settings.vibration ? 'OUI' : 'NON',
+            label: t.vibration,
+            detail: yesNo(settings.vibration),
             onSelect: () => {
               services.update({ vibration: !settings.vibration });
               services.audio.vibrate(40);
             },
           },
-          { label: 'Plein écran', onSelect: toggleFullscreen },
+          { label: t.fullscreen, onSelect: toggleFullscreen },
           ...(installable
-            ? [{ label: "Installer l'appli", onSelect: () => void promptInstall() }]
+            ? [{ label: t.install, onSelect: () => void promptInstall() }]
             : showIos
-              ? [{ label: "Installer l'appli", onSelect: () => setIosHint(true) }]
+              ? [{ label: t.install, onSelect: () => setIosHint(true) }]
               : []),
-          { label: 'Retour', onSelect: onBack },
+          { label: t.back, onSelect: onBack },
         ]}
       />
       {iosHint && (
-        <p className="small gold-text">Sur iPhone : bouton Partager, puis « Sur l'écran d'accueil ».</p>
+        <p className="small gold-text">{t.iosInstall}</p>
       )}
       <div className="keys-help">
-        <p>Clavier : flèches, X/Espace = A, Z/W = B</p>
-        <p>Entrée = START, Maj = SELECT, Échap = pause</p>
+        <p>{t.keysHelp1(keys)}</p>
+        <p>{t.keysHelp2(keys)}</p>
       </div>
     </Frame>
   );

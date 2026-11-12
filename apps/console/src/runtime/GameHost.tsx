@@ -4,6 +4,7 @@ import { createGameSession } from '@gamebovh/sdk/runtime';
 import { Frame, Hint, MenuList, type MenuItem } from '../screens/ui.tsx';
 import { manifestOf, type CatalogEntry } from './catalog.ts';
 import { useConsoleButtons, useServices } from './services.tsx';
+import { useT } from '../i18n.ts';
 
 type Overlay =
   | { kind: 'pause' }
@@ -37,6 +38,7 @@ export interface GameHostProps {
 export function GameHost(props: GameHostProps) {
   const { entry, def, inRoom, seed, subscribeMenu, onQuit, onReplay, onLobby } = props;
   const services = useServices();
+  const t = useT();
   const [overlay, setOverlay] = useState<Overlay>(null);
 
   const [session] = useState(() => {
@@ -48,12 +50,13 @@ export function GameHost(props: GameHostProps) {
         audio: services.audio,
         net: services.net,
         storage,
-        player: { id: services.playerId, nickname: services.settings.nickname || 'Joueur' },
+        player: { id: services.playerId, nickname: services.settings.nickname || t.defaultPlayer },
+        lang: services.lang,
       },
       {
         onGameOver: async (result) => {
           const { entry: saved, rank } = await storage.addScore({
-            nickname: services.settings.nickname || 'Joueur',
+            nickname: services.settings.nickname || t.defaultPlayer,
             score: result.score,
             display: result.display,
           });
@@ -104,18 +107,18 @@ export function GameHost(props: GameHostProps) {
       {overlay?.kind === 'pause' && (
         <div className="overlay">
           <div className="overlay-box">
-            <h2>PAUSE</h2>
+            <h2>{t.pause}</h2>
             <MenuList
               onBack={() => setOverlay(null)}
               items={[
-                { label: 'Reprendre', onSelect: () => setOverlay(null) },
-                ...(!inRoom ? [{ label: 'Recommencer', onSelect: onReplay }] : []),
+                { label: t.resume, onSelect: () => setOverlay(null) },
+                ...(!inRoom ? [{ label: t.restart, onSelect: onReplay }] : []),
                 inRoom
-                  ? { label: 'Quitter la salle', onSelect: onQuit }
-                  : { label: 'Retour au menu', onSelect: onQuit },
+                  ? { label: t.leaveRoom, onSelect: onQuit }
+                  : { label: t.backToMenu, onSelect: onQuit },
               ]}
             />
-            {inRoom && <p className="small dim">La partie continue pour les autres.</p>}
+            {inRoom && <p className="small dim">{t.gameGoesOn}</p>}
           </div>
         </div>
       )}
@@ -141,24 +144,25 @@ function ResultsOverlay({
   onQuit: () => void;
 }) {
   const { playerId } = useServices();
+  const t = useT();
   const { result, rank, record, top } = overlay;
   const items: MenuItem[] = inRoom
     ? [
-        { label: 'Retour à la salle', onSelect: onLobby },
-        { label: 'Quitter la salle', onSelect: onQuit },
+        { label: t.backToRoom, onSelect: onLobby },
+        { label: t.leaveRoom, onSelect: onQuit },
       ]
     : [
-        { label: 'Rejouer', onSelect: onReplay },
-        { label: 'Menu', onSelect: onQuit },
+        { label: t.replay, onSelect: onReplay },
+        { label: t.menu, onSelect: onQuit },
       ];
-  const outcome = result.outcome === 'win' ? 'GAGNÉ !' : result.outcome === 'lose' ? 'PERDU' : result.outcome === 'draw' ? 'ÉGALITÉ' : 'FIN DE PARTIE';
+  const outcome = result.outcome === 'win' ? t.win : result.outcome === 'lose' ? t.lose : result.outcome === 'draw' ? t.draw : t.gameOver;
 
   return (
     <div className="overlay">
       <div className="overlay-box results">
         <h2>{outcome}</h2>
         <div className="result-score">{result.display ?? result.score}</div>
-        <div className="small">{record ? 'NOUVEAU RECORD PERSO !' : `Rang local : ${rank}`}</div>
+        <div className="small">{record ? t.newRecord : t.localRank(rank)}</div>
         <ol className="scores mini">
           {top.map((s, i) => (
             <li key={s.id} className={s.playerId === playerId ? 'is-me' : ''}>
@@ -177,12 +181,13 @@ function ResultsOverlay({
 /* ---------- Plantage d'une cartouche ---------- */
 
 function CrashScreen({ name, message, onQuit }: { name: string; message: string; onQuit: () => void }) {
+  const t = useT();
   useConsoleButtons((b) => (b === 'b' || b === 'a') && onQuit());
   return (
-    <Frame title="ERREUR DE CARTOUCHE" footer={<Hint>B menu</Hint>} snow={false}>
-      <p className="small">{name} a planté.</p>
+    <Frame title={t.crashTitle} footer={<Hint>{t.hintMenu}</Hint>} snow={false}>
+      <p className="small">{t.crashed(name)}</p>
       <pre className="crash">{message}</pre>
-      <p className="small dim">Détails dans la console du navigateur.</p>
+      <p className="small dim">{t.crashDetails}</p>
     </Frame>
   );
 }

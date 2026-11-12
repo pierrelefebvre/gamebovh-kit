@@ -26,6 +26,9 @@ for (const [i, g] of (catalog.games ?? []).entries()) {
     errors.push(`${where}: missing ${missing.join(', ')}`);
     continue;
   }
+  if (typeof g.en?.name !== 'string' || !g.en.name || typeof g.en?.description !== 'string' || !g.en.description) {
+    errors.push(`${where}: missing English text: "en": { "name": "...", "description": "..." }`);
+  }
   if (!/^[a-z0-9_-]+$/.test(g.id)) errors.push(`${where}: id must be lowercase letters, digits, - or _`);
   if (seen.has(g.id)) errors.push(`${where}: duplicate id`);
   seen.add(g.id);

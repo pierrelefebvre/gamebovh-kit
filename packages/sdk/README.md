@@ -42,6 +42,10 @@ Puis :
      "team": "Équipe Yéti",
      "version": "1.0.0",
      "description": "Une phrase qui donne envie de jouer.",
+     "en": {
+       "name": "My great game",
+       "description": "One sentence that makes people want to play."
+     },
      "minPlayers": 1,
      "maxPlayers": 1,
      "module": "games/mon-jeu/src/index.tsx"
@@ -78,13 +82,16 @@ function MonJeu({ ctx }: GameProps) {
 export default defineGame({
   component: MonJeu,
   scoreOrder: 'desc', // 'desc' : plus grand = meilleur (points). 'asc' : plus petit = meilleur (chrono).
-  howToPlay: ['Ligne de règle 1.', 'Ligne de règle 2.', 'Ligne de règle 3.'],
+  howToPlay: {
+    fr: ['Ligne de règle 1.', 'Ligne de règle 2.', 'Ligne de règle 3.'],
+    en: ['Rule line 1.', 'Rule line 2.', 'Rule line 3.'],
+  },
 });
 ```
 
 - L'**export par défaut** est obligatoire : c'est ce que la console charge.
-- `howToPlay` s'affiche sur la fiche du jeu : 3 lignes courtes, en français, compréhensibles en moins de 30 secondes.
-- Tout le texte affiché aux joueurs est **en français**.
+- `howToPlay` s'affiche sur la fiche du jeu : 3 lignes courtes, en français et en anglais, compréhensibles en moins de 30 secondes.
+- Tout le texte affiché aux joueurs existe **en français et en anglais** (voir plus bas).
 
 Ce que contient `ctx` :
 
@@ -92,15 +99,43 @@ Ce que contient `ctx` :
 | --- | --- |
 | `ctx.screen` | Taille de l'écran : `{ width: 240, height: 216 }` |
 | `ctx.player` | Le joueur sur cet appareil : `{ id, nickname }` |
+| `ctx.lang` | Langue de la console : `'fr'` ou `'en'` |
 | `ctx.input` | Les boutons (section 5) |
 | `ctx.lifecycle` | Fin de partie, pause, retour au menu (section 6) |
 | `ctx.audio` | Sons et vibration (section 7) |
 | `ctx.storage` | Sauvegardes et classement local (section 8) |
 | `ctx.multiplayer` | Salle, joueurs, messages (section 9) |
 | `ctx.seed` | Nombre aléatoire de la partie, le même pour tous les joueurs d'une salle |
-| `ctx.manifest` | Ta ligne de `games.json` |
+| `ctx.manifest` | Ta ligne de `games.json`, déjà traduite |
 
 Quand on clique sur « Rejouer », la console recrée ton composant : chaque partie repart de zéro, tu n'as rien à réinitialiser.
+
+### Deux langues : français et anglais
+
+La console s'affiche en **français ou en anglais** : elle suit la langue du navigateur, et le joueur peut la changer dans les réglages. Ton jeu reçoit la langue dans `ctx.lang` (`'fr'` ou `'en'`) et doit afficher **chaque texte dans les deux langues**.
+
+Déclare tous tes textes au même endroit avec `defineTexts` :
+
+```tsx
+import { defineTexts } from '@gamebovh/sdk';
+
+const TEXTS = defineTexts({
+  fr: { go: 'PARTEZ !', lives: (n: number) => `${n} VIES` },
+  en: { go: 'GO!', lives: (n: number) => `${n} LIVES` },
+});
+
+function MonJeu({ ctx }: GameProps) {
+  const t = TEXTS[ctx.lang]; // les textes dans la bonne langue
+  // ...
+  drawText(g, t.lives(3), 4, 4);
+}
+```
+
+- Si une clé existe en français mais pas en anglais (ou l'inverse), `pnpm check` échoue : impossible d'oublier une traduction.
+- Un texte qui contient un nombre devient une petite fonction, comme `lives` ci-dessus.
+- La langue ne change jamais pendant une partie : lire `ctx.lang` au début suffit.
+- Le nom et la description de ta ligne de `games.json` ont aussi leur version anglaise, dans `"en"`.
+
 
 ## 3. L'écran
 
@@ -170,11 +205,13 @@ Les joueurs ont plusieurs façons d'appuyer, ton jeu ne voit pas la différence 
 
 | Bouton | Tactile | Clavier | Manette |
 | --- | --- | --- | --- |
-| Croix | croix de la console (glisser le doigt marche) | flèches, ou WASD / ZQSD | croix ou stick |
+| Croix | croix de la console (glisser le doigt marche) | flèches, ou ZQSD en AZERTY / WASD en QWERTY | croix ou stick |
 | A | bouton A | X, K ou Espace | bouton du bas |
-| B | bouton B | Z (W en AZERTY), J ou C | bouton de droite |
+| B | bouton B | W en AZERTY / Z en QWERTY, J ou C | bouton de droite |
 | Start | START | Entrée | Start |
 | Select | SELECT | Maj ou Retour arrière | Select |
+
+La console lit les touches **par leur position** sur le clavier : ZQSD sur un clavier AZERTY et WASD sur un clavier QWERTY donnent la même chose, sans réglage. Elle devine la disposition et affiche les bonnes lettres sous les boutons quand on joue à la souris et au clavier (réglable dans RÉGLAGES > Clavier). Dans tes textes d'aide, parle des boutons de la console (« A », « la croix »), pas des touches du clavier.
 
 Start + Select maintenus 1 seconde (ou Échap) ouvrent le menu pause de la console : ne compte pas sur ce raccourci dans ton jeu.
 
@@ -356,8 +393,8 @@ Exemples complets à lire :
 
 - [ ] `pnpm check` passe sans erreur.
 - [ ] Une partie dure entre 2 et 5 minutes, et les règles se comprennent en moins de 30 secondes.
-- [ ] Tout le texte affiché est en français.
-- [ ] Le jeu se joue au doigt sur téléphone **et** au clavier.
+- [ ] Tout le texte affiché existe en français **et** en anglais (essaie les deux dans RÉGLAGES > Langue).
+- [ ] Le jeu se joue au doigt sur téléphone et tablette, **et** au clavier sur ordinateur.
 - [ ] `gameOver` est appelé une seule fois, avec le bon `scoreOrder`.
 - [ ] En multijoueur : testé à deux appareils au moins, et le départ d'un joueur ne bloque pas la partie.
 - [ ] `README.md` du jeu à jour : règles et noms de l'équipe.

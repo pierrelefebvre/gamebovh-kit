@@ -9,10 +9,13 @@ export function PadButton({
   button,
   label,
   className,
+  keycap,
 }: {
   button: Button;
   label: string;
   className: string;
+  /** Touche du clavier correspondante, affichée sur ordinateur. */
+  keycap?: string;
 }) {
   const { input, audio } = useServices();
   const down = useButtonDown(button);
@@ -43,6 +46,7 @@ export function PadButton({
       onContextMenu={(e) => e.preventDefault()}
     >
       <span>{label}</span>
+      {keycap && <kbd className="keycap">{keycap}</kbd>}
     </button>
   );
 }

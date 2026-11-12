@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import type { Button } from '@gamebovh/sdk';
+import { detectLang, type Button, type Lang } from '@gamebovh/sdk';
 import {
   AudioEngine,
   GameStorage,
@@ -10,19 +10,26 @@ import {
   randomId,
   type KeyValueStore,
 } from '@gamebovh/sdk/runtime';
+import { watchKeyboardLayout, type KeyboardLayout } from '../input/layout.ts';
 import { resolveSocketUrl } from './config.ts';
+
+/** Langue choisie : 'auto' suit le navigateur. */
+export type LangSetting = 'auto' | 'fr' | 'en';
 
 export interface Settings {
   nickname: string;
   muted: boolean;
   vibration: boolean;
+  language: LangSetting;
+  /** Disposition du clavier pour l'affichage des touches : 'auto' la devine. */
+  keyboard: 'auto' | KeyboardLayout;
 }
 
 const SETTINGS_KEY = 'gamebovh:settings';
 const PLAYER_ID_KEY = 'gamebovh:playerId';
 
 function readSettings(): Settings {
-  const defaults: Settings = { nickname: '', muted: true, vibration: true };
+  const defaults: Settings = { nickname: '', muted: true, vibration: true, language: 'auto', keyboard: 'auto' };
   try {
     return { ...defaults, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') };
   } catch {
@@ -56,7 +63,35 @@ export class Services {
   constructor() {
     this.audio.muted = this.settings.muted;
     this.audio.vibrationEnabled = this.settings.vibration;
-    this.net = new NetClient(resolveSocketUrl(), () => this.settings.nickname || 'Joueur');
+    this.net = new NetClient(resolveSocketUrl(), () => this.settings.nickname || (this.lang === 'fr' ? 'Joueur' : 'Player'));
+    this.applyLang();
+    watchKeyboardLayout((layout) => {
+      if (layout === this.detectedLayout) return;
+      this.detectedLayout = layout;
+      this.notify();
+    });
+  }
+
+  private notify(): void {
+    for (const l of this.listeners) l();
+  }
+
+  /** Langue effective : celle des réglages, sinon celle du navigateur. */
+  get lang(): Lang {
+    return this.settings.language === 'auto' ? detectLang() : this.settings.language;
+  }
+
+  /** Disposition devinée (null tant qu'on ne sait pas). */
+  detectedLayout: KeyboardLayout | null = null;
+
+  /** Disposition effective : réglage, sinon devinée, sinon d'après la langue. */
+  get layout(): KeyboardLayout {
+    if (this.settings.keyboard !== 'auto') return this.settings.keyboard;
+    return this.detectedLayout ?? (this.lang === 'fr' ? 'azerty' : 'qwerty');
+  }
+
+  private applyLang(): void {
+    document.documentElement.lang = this.lang;
   }
 
   async init(): Promise<void> {
@@ -73,7 +108,8 @@ export class Services {
       /* stockage indisponible : réglages perdus au rechargement */
     }
     if (patch.nickname !== undefined) this.net.refreshNickname();
-    for (const l of this.listeners) l();
+    if (patch.language !== undefined) this.applyLang();
+    this.notify();
   }
 
   subscribe(cb: () => void): () => void {
@@ -104,6 +140,14 @@ export function useSettings(): Settings {
   const [settings, setSettings] = useState(services.settings);
   useEffect(() => services.subscribe(() => setSettings(services.settings)), [services]);
   return settings;
+}
+
+/** Disposition du clavier effective, à jour en temps réel. */
+export function useKeyboardLayout(): KeyboardLayout {
+  const services = useServices();
+  const [layout, setLayout] = useState(services.layout);
+  useEffect(() => services.subscribe(() => setLayout(services.layout)), [services]);
+  return layout;
 }
 
 /**

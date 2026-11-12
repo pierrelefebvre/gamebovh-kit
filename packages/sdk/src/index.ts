@@ -5,6 +5,7 @@
  */
 export * from './contract.ts';
 export { defineGame } from './defineGame.ts';
+export { defineTexts, detectLang } from './i18n.ts';
 export {
   useButton,
   useCanvas,

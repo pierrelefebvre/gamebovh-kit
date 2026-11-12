@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gamebovh/sdk';
 import { useServices, useSettings } from '../runtime/services.tsx';
+import { useKeyLabels, useT } from '../i18n.ts';
 import { SnowCap } from './Backdrop.tsx';
 import { DPad, PadButton } from './Controls.tsx';
 import { OvhLogo } from './OvhLogo.tsx';
@@ -44,11 +45,12 @@ function ScaledScreen({ children }: { children: ReactNode }) {
 function SoundToggle() {
   const services = useServices();
   const { muted } = useSettings();
+  const t = useT();
   return (
     <button
       type="button"
       className={`sound-toggle${muted ? '' : ' is-on'}`}
-      aria-label={muted ? 'Activer le son' : 'Couper le son'}
+      aria-label={muted ? t.soundOn : t.soundOff}
       onClick={() => {
         services.update({ muted: !muted });
         if (muted) services.audio.play('confirm');
@@ -76,6 +78,8 @@ export function ConsoleShell({
   powered: boolean;
   onPower: () => void;
 }) {
+  const t = useT();
+  const keys = useKeyLabels();
   return (
     <div className="console">
       <SnowCap />
@@ -84,7 +88,7 @@ export function ConsoleShell({
         <button
           type="button"
           className={`power-switch${powered ? ' is-on' : ''}`}
-          aria-label={powered ? 'Éteindre la console' : 'Allumer la console'}
+          aria-label={powered ? t.powerOff : t.powerOn}
           aria-pressed={powered}
           onClick={onPower}
         >
@@ -92,10 +96,10 @@ export function ConsoleShell({
           <span className="power-track" aria-hidden="true">
             <span className="power-knob" />
           </span>
-          <span className="console-label">{powered ? 'MARCHE' : 'ARRÊT'}</span>
+          <span className="console-label">{powered ? t.on : t.off}</span>
         </button>
         <span className="console-spacer" />
-        <span className="console-label edition">ÉDITION ANNUAL PARTY</span>
+        <span className="console-label edition">{t.edition}</span>
         <SoundToggle />
       </div>
 
@@ -109,20 +113,21 @@ export function ConsoleShell({
           <OvhLogo className="logo-ovh" />
         </div>
         <div className="tagline">ANNUAL PARTY · 2026</div>
-        <div className="credits">Créé par les étudiants de Lille Ynov Campus et leur équipe pédagogique</div>
+        <div className="credits">{t.credits}</div>
       </div>
 
       <div className="controls">
         <div className="controls-left">
           <DPad />
+          <kbd className="keycap keycap-dpad">{keys.dpad} · ←↑→↓</kbd>
         </div>
         <div className="controls-right">
-          <PadButton button="b" label="B" className="action action-b" />
-          <PadButton button="a" label="A" className="action action-a" />
+          <PadButton button="b" label="B" className="action action-b" keycap={keys.b} />
+          <PadButton button="a" label="A" className="action action-a" keycap={keys.a} />
         </div>
         <div className="controls-bottom">
-          <PadButton button="select" label="SELECT" className="pill" />
-          <PadButton button="start" label="START" className="pill" />
+          <PadButton button="select" label="SELECT" className="pill" keycap={keys.select} />
+          <PadButton button="start" label="START" className="pill" keycap={keys.start} />
         </div>
         <div className="speaker" aria-hidden="true">
           {Array.from({ length: 6 }, (_, i) => (

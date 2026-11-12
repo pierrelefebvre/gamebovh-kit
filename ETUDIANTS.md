@@ -25,7 +25,7 @@ Ce document est **la règle du jeu technique** du challenge. Lisez-le en entier 
 
 ## 1. Ce que vous allez faire
 
-GameBOVH est une console de jeux façon console portable rétro, qui tourne dans le navigateur des téléphones et des ordinateurs. Elle sera utilisée par les collaborateurs d'OVHcloud pendant leur Annual Party.
+GameBOVH est une console de jeux façon console portable rétro, en français et en anglais, qui tourne dans le navigateur des téléphones, des tablettes et des ordinateurs. Elle sera utilisée par les collaborateurs d'OVHcloud pendant leur Annual Party.
 
 **La console est déjà faite.** Vous fabriquez **une cartouche** : un jeu qui se branche dans la console. Vous ne touchez ni à la console, ni au serveur, ni au framework.
 
@@ -145,6 +145,10 @@ Ajoutez **une seule ligne** à la fin de la liste `games`, sans toucher aux autr
   "team": "Équipe Yéti",
   "version": "1.0.0",
   "description": "Une phrase qui donne envie de jouer, 100 caractères environ.",
+  "en": {
+    "name": "Sledge Race",
+    "description": "The same sentence, in English."
+  },
   "minPlayers": 1,
   "maxPlayers": 4,
   "module": "games/course-de-luges/src/index.tsx"
@@ -158,6 +162,7 @@ Ajoutez **une seule ligne** à la fin de la liste `games`, sans toucher aux autr
 | `team` | le nom de votre équipe |
 | `version` | `1.0.0`, puis augmentez à chaque version rendue |
 | `description` | 2 lignes au maximum à l'écran |
+| `en` | le nom et la description en anglais (obligatoire, vérifié par `pnpm check`) |
 | `minPlayers`, `maxPlayers` | entre 1 et 4. `minPlayers: 1` permet de jouer seul ; `maxPlayers` supérieur à 1 ouvre les salles |
 | `module` | toujours `games/<id>/src/index.tsx` |
 
@@ -222,7 +227,10 @@ function CourseDeLuges({ ctx }: GameProps) {
 export default defineGame({
   component: CourseDeLuges,
   scoreOrder: 'desc', // 'desc' : plus grand = meilleur. 'asc' : plus petit = meilleur (chrono)
-  howToPlay: ['Ligne 1 des règles.', 'Ligne 2.', 'Ligne 3.'],
+  howToPlay: {
+    fr: ['Ligne 1 des règles.', 'Ligne 2.', 'Ligne 3.'],
+    en: ['Rule line 1.', 'Line 2.', 'Line 3.'],
+  },
 });
 ```
 
@@ -232,6 +240,7 @@ Tout ce dont votre jeu a besoin passe par `ctx`. **N'allez rien chercher ailleur
 | --- | --- | --- |
 | `screen` | taille de l'écran : 240 × 216 pixels | `ctx.screen.width` |
 | `player` | le joueur sur cet appareil | `ctx.player.nickname` |
+| `lang` | langue de la console, `'fr'` ou `'en'` | `TEXTS[ctx.lang]` |
 | `input` | les 8 boutons | `ctx.input.isDown('left')` |
 | `lifecycle` | fin de partie, pause, retour au menu | `ctx.lifecycle.gameOver({ score })` |
 | `audio` | sons et vibration | `ctx.audio.play('coin')` |
@@ -252,6 +261,36 @@ Hooks et outils fournis : `useGameLoop`, `useButton`, `useCanvas`, `usePaused`, 
 4. **`gameOver` est appelé une seule fois** par partie, avec un nombre en `score`.
 5. `scoreOrder` correspond à votre score : `'desc'` pour des points, `'asc'` pour un temps.
 6. Chaque message multijoueur est un objet avec un champ **`type`**, qui ne commence pas par `__`.
+
+### Deux langues : français et anglais
+
+La console s'affiche en **français ou en anglais**. Elle suit la langue du navigateur, et chaque joueur peut la changer dans RÉGLAGES > Langue. Votre jeu reçoit la langue dans `ctx.lang` (`'fr'` ou `'en'`) et doit afficher **chaque texte dans les deux langues**.
+
+Déclarez tous vos textes au même endroit avec `defineTexts`, puis prenez ceux de la bonne langue :
+
+```tsx
+import { defineTexts } from '@gamebovh/sdk';
+
+const TEXTS = defineTexts({
+  fr: { go: 'PARTEZ !', lives: (n: number) => `${n} VIES` },
+  en: { go: 'GO!', lives: (n: number) => `${n} LIVES` },
+});
+
+function CourseDeLuges({ ctx }: GameProps) {
+  const t = TEXTS[ctx.lang];
+  // ...
+  drawText(g, t.lives(3), 4, 4);
+}
+```
+
+| Où | Ce qu'il faut traduire |
+| --- | --- |
+| Votre code | tous les textes affichés, avec `defineTexts` (une clé oubliée d'un côté fait échouer `pnpm check`) |
+| `howToPlay` | `{ fr: [...], en: [...] }`, 3 lignes dans chaque langue |
+| `games.json` | `name` et `description` en français, et leur version anglaise dans `"en"` |
+| Vos images | évitez d'y écrire du texte ; sinon, une image par langue |
+
+La cartouche modèle `games/_template` montre l'exemple complet. Testez toujours votre jeu dans les deux langues.
 
 ## 6. Le multijoueur
 
@@ -331,7 +370,9 @@ git checkout -- chemin/du/fichier
 | Pas de `eval`, pas de `new Function`, pas de code chargé à la volée | Sécurité |
 | Ne touchez pas au reste de la page (`document.body`, styles globaux, plein écran, titre) | La console est partagée : votre jeu vit dans sa zone de 240 × 216 |
 | Si vous utilisez du CSS, préfixez toutes vos classes avec l'id du jeu (`.course-de-luges-score`) | Pour ne pas casser l'affichage de la console ou des autres jeux |
-| Tout le texte affiché est **en français** | Public de l'événement |
+| Tout le texte affiché existe **en français et en anglais**, via `defineTexts` | Les collaborateurs d'OVHcloud viennent de nombreux pays |
+| Le jeu marche sur téléphone, tablette et ordinateur, en portrait comme en paysage | La console s'adapte à l'écran ; votre jeu, lui, dessine toujours dans 240 × 216 |
+| Dans vos textes d'aide, parlez des boutons de la console (« A », « la croix »), pas des touches du clavier | Les touches changent entre AZERTY et QWERTY ; la console affiche elle-même les bonnes |
 | Pas d'erreur TypeScript, pas de `// @ts-ignore` pour la masquer | `pnpm check` doit passer |
 | Pas d'erreur dans la console du navigateur (F12) pendant une partie | Un jeu qui plante affiche « ERREUR DE CARTOUCHE » au lieu de s'afficher |
 | Contenu adapté à une soirée d'entreprise | Pas de violence réaliste, pas de contenu choquant, rien sur des personnes réelles |
@@ -390,8 +431,8 @@ L'équipe pédagogique récupère alors **uniquement** votre dossier `games/<vot
 - [ ] `pnpm check` passe sur un clone tout neuf.
 - [ ] Aucun fichier fourni modifié (vérifié par `pnpm check`).
 - [ ] Une partie dure 2 à 5 minutes, les règles se comprennent en 30 secondes.
-- [ ] Le jeu se joue **au doigt sur téléphone** et **au clavier**.
-- [ ] Tout le texte est en français.
+- [ ] Le jeu se joue **au doigt sur téléphone et tablette** et **au clavier sur ordinateur** (AZERTY et QWERTY).
+- [ ] Tout le texte existe en français **et** en anglais (testé dans RÉGLAGES > Langue).
 - [ ] `gameOver` est appelé une seule fois, avec le bon `scoreOrder`.
 - [ ] En multijoueur : testé sur au moins deux appareils ; le départ d'un joueur ne bloque pas la partie.
 - [ ] Aucune erreur dans la console du navigateur pendant une partie.

@@ -136,7 +136,3 @@ export function MenuList({
 export function Hint({ children }: { children: ReactNode }) {
   return <span className="hint">{children}</span>;
 }
-
-export function playersLabel(min: number, max: number): string {
-  return min === max ? `${min}J` : `${min}-${max}J`;
-}

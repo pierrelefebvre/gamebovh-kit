@@ -8,23 +8,22 @@ import { PLAYER_COLORS, type Room } from '@gamebovh/sdk';
 import type { CatalogEntry } from '../runtime/catalog.ts';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { Frame, Hint } from './ui.tsx';
+import { useT, type Strings } from '../i18n.ts';
 
 
-const ERRORS: Record<string, string> = {
-  room_not_found: "Cette salle n'existe pas.",
-  room_full: 'Cette salle est pleine (4 joueurs max).',
-  wrong_game: 'Cette salle est pour un autre jeu.',
-  too_many_rooms: 'Serveur complet, réessaie dans un instant.',
-  timeout: 'Le serveur ne répond pas.',
-  offline: 'Impossible de joindre le serveur.',
-  rate_limited: 'Trop de messages, doucement !',
-};
-
-/** Message d'erreur réseau en français. */
-function errorText(e: unknown): string {
+/** Message d'erreur réseau dans la langue de la console. */
+function errorText(e: unknown, t: Strings): string {
   const code = (e as { code?: string })?.code;
-  if (code && ERRORS[code]) return ERRORS[code];
-  return 'Erreur de connexion.';
+  const errors: Record<string, string> = {
+    room_not_found: t.errRoomNotFound,
+    room_full: t.errRoomFull,
+    wrong_game: t.errWrongGame,
+    too_many_rooms: t.errTooManyRooms,
+    timeout: t.errTimeout,
+    offline: t.errOffline,
+    rate_limited: t.errRateLimited,
+  };
+  return (code && errors[code]) || t.errGeneric;
 }
 
 /** Salle courante, à jour en temps réel. */
@@ -46,6 +45,7 @@ export function JoinScreen({
   onJoined: () => void;
 }) {
   const { net, audio } = useServices();
+  const t = useT();
   const [letters, setLetters] = useState<number[]>(() => Array(ROOM_CODE_LENGTH).fill(0));
   const [pos, setPos] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -62,7 +62,7 @@ export function JoinScreen({
       onJoined();
     } catch (e) {
       audio.play('back');
-      setError(errorText(e));
+      setError(errorText(e, t));
     } finally {
       setBusy(false);
     }
@@ -107,16 +107,16 @@ export function JoinScreen({
 
   return (
     <Frame
-      title={`REJOINDRE ${entry.name}`}
+      title={t.joinTitle(entry.name)}
       footer={
         <>
-          <Hint>↑↓ lettre</Hint>
-          <Hint>START rejoindre</Hint>
-          <Hint>B retour</Hint>
+          <Hint>{t.hintLetter}</Hint>
+          <Hint>{t.hintJoin}</Hint>
+          <Hint>{t.hintBack}</Hint>
         </>
       }
     >
-      <p className="center small">Entre le code de la salle</p>
+      <p className="center small">{t.enterCode}</p>
       <div className="code-input">
         {letters.map((v, i) => (
           <button
@@ -132,7 +132,7 @@ export function JoinScreen({
         ))}
       </div>
       <button type="button" className="code-go" onClick={() => void submit()} disabled={busy}>
-        {busy ? 'CONNEXION...' : 'REJOINDRE'}
+        {busy ? t.connectingCaps : t.joinCaps}
       </button>
       {error && <p className="error-text center">{error}</p>}
     </Frame>
@@ -155,6 +155,7 @@ export function LobbyScreen({
   onStart: () => void;
 }) {
   const { net, audio } = useServices();
+  const t = useT();
   const room = useRoom();
   const [status, setStatus] = useState(net.status);
   const [error, setError] = useState<string | null>(null);
@@ -165,7 +166,7 @@ export function LobbyScreen({
   useEffect(() => {
     if (!create || net.room || requested.current) return;
     requested.current = true;
-    net.createRoom(entry.id).catch((e) => setError(errorText(e)));
+    net.createRoom(entry.id).catch((e) => setError(errorText(e, t)));
   }, [create, entry, net]);
 
   const players = room?.players ?? [];
@@ -188,23 +189,23 @@ export function LobbyScreen({
 
   let info: string;
   if (error) info = error;
-  else if (!room) info = status === 'connecting' ? 'Connexion...' : 'Création de la salle...';
-  else if (players.length < entry.minPlayers) info = `Encore ${entry.minPlayers - players.length} joueur(s) attendu(s)`;
-  else if (me?.isHost) info = 'Appuie sur A pour lancer';
-  else info = "En attente de l'hôte";
+  else if (!room) info = status === 'connecting' ? t.connecting : t.creatingRoom;
+  else if (players.length < entry.minPlayers) info = t.waitingPlayers(entry.minPlayers - players.length);
+  else if (me?.isHost) info = t.pressAToStart;
+  else info = t.waitingHost;
 
   return (
     <Frame
-      title={`SALLE ${entry.name}`}
+      title={t.roomTitle(entry.name)}
       footer={
         <>
-          {canStart && <Hint>A lancer</Hint>}
-          <Hint>B quitter</Hint>
+          {canStart && <Hint>{t.hintStart}</Hint>}
+          <Hint>{t.hintLeave}</Hint>
         </>
       }
     >
       <div className="room-code">
-        <span className="small">CODE</span>
+        <span className="small">{t.code}</span>
         <strong>{room?.code ?? '····'}</strong>
       </div>
       <ul className="players">
@@ -215,8 +216,8 @@ export function LobbyScreen({
               <span className="slot-dot" style={{ background: p ? PLAYER_COLORS[slot] : undefined }} />
               <span className="who">{p ? p.nickname : '...'}</span>
               <span className="tags">
-                {p?.isHost && 'HÔTE'}
-                {p?.isMe && ' TOI'}
+                {p?.isHost && t.host}
+                {p?.isMe && ` ${t.you}`}
               </span>
             </li>
           );

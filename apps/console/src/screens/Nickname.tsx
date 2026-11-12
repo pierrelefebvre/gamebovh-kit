@@ -2,21 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { NICKNAME_MAX_LENGTH, sanitizeNickname } from '@gamebovh/protocol';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { Frame, Hint } from './ui.tsx';
+import { useT } from '../i18n.ts';
 
 const ROWS = ['ABCDEFGHIJ', 'KLMNOPQRST', 'UVWXYZ0123', '456789-_.!'];
-const DEL = 'EFF';
+const DEL = 'DEL';
 const OK = 'OK';
 const GRID: string[][] = [...ROWS.map((r) => r.split('')), [DEL, ' ', OK]];
 
-function randomName() {
-  const names = ['SKIEUR', 'YETI', 'POUDREUSE', 'FLOCON', 'PISTE', 'CHALET'];
+function randomName(names: readonly string[]) {
   return `${names[Math.floor(Math.random() * names.length)]}${Math.floor(Math.random() * 90 + 10)}`;
 }
 
 /** Choix du pseudo : clavier pixel à la croix, ou clavier physique. */
 export function NicknameScreen({ onDone, onCancel }: { onDone: () => void; onCancel?: () => void }) {
   const services = useServices();
-  const [name, setName] = useState(services.settings.nickname || randomName());
+  const t = useT();
+  const [name, setName] = useState(services.settings.nickname || randomName(t.randomNames));
   const [row, setRow] = useState(GRID.length - 1);
   const [col, setCol] = useState(2);
 
@@ -78,12 +79,12 @@ export function NicknameScreen({ onDone, onCancel }: { onDone: () => void; onCan
   const c = Math.min(col, GRID[row].length - 1);
   return (
     <Frame
-      title="TON PSEUDO"
+      title={t.nicknameTitle}
       footer={
         <>
-          <Hint>A écrire</Hint>
-          <Hint>B effacer</Hint>
-          <Hint>START valider</Hint>
+          <Hint>{t.hintType}</Hint>
+          <Hint>{t.hintErase}</Hint>
+          <Hint>{t.hintSave}</Hint>
         </>
       }
     >
@@ -105,7 +106,7 @@ export function NicknameScreen({ onDone, onCancel }: { onDone: () => void; onCan
                   type(k);
                 }}
               >
-                {k === ' ' ? 'ESP' : k}
+                {k === ' ' ? t.keySpace : k === DEL ? t.keyDel : k}
               </button>
             ))}
           </div>

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import type { GameDefinition, ScoreEntry } from '@gamebovh/sdk';
 import { loadGame, type CatalogEntry } from '../runtime/catalog.ts';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
-import { Frame, Hint, MenuList, playersLabel, type MenuItem } from './ui.tsx';
+import { Frame, Hint, MenuList, type MenuItem } from './ui.tsx';
+import { useLang, useT } from '../i18n.ts';
 
 /** Fiche d'une cartouche : règles, choix solo / salle, scores. */
 export function CartridgeScreen({
@@ -20,6 +21,8 @@ export function CartridgeScreen({
   onJoin: (def: GameDefinition) => void;
   onScores: (def: GameDefinition) => void;
 }) {
+  const t = useT();
+  const lang = useLang();
   const [def, setDef] = useState<GameDefinition | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,12 +41,12 @@ export function CartridgeScreen({
 
   const items: MenuItem[] = [];
   if (def) {
-    if (entry.minPlayers === 1) items.push({ label: 'Solo', onSelect: () => onSolo(def) });
+    if (entry.minPlayers === 1) items.push({ label: t.soloItem, onSelect: () => onSolo(def) });
     if (entry.maxPlayers > 1) {
-      items.push({ label: 'Créer une salle', onSelect: () => onCreate(def) });
-      items.push({ label: 'Rejoindre une salle', onSelect: () => onJoin(def) });
+      items.push({ label: t.createRoom, onSelect: () => onCreate(def) });
+      items.push({ label: t.joinRoom, onSelect: () => onJoin(def) });
     }
-    items.push({ label: 'Scores', onSelect: () => onScores(def) });
+    items.push({ label: t.scoresItem, onSelect: () => onScores(def) });
   }
 
   return (
@@ -51,29 +54,29 @@ export function CartridgeScreen({
       title={
         <>
           <span>{entry.name}</span>
-          <span className="title-right">{playersLabel(entry.minPlayers, entry.maxPlayers)}</span>
+          <span className="title-right">{t.playersShort(entry.minPlayers, entry.maxPlayers)}</span>
         </>
       }
       footer={
         <>
-          <Hint>A valider</Hint>
-          <Hint>B retour</Hint>
+          <Hint>{t.hintOk}</Hint>
+          <Hint>{t.hintBack}</Hint>
         </>
       }
     >
       <div className="cart-meta">
-        par {entry.team} · v{entry.version}
+        {t.by(entry.team, entry.version)}
       </div>
       <p className="cart-desc">{entry.description}</p>
       {def?.howToPlay && (
         <ul className="how">
-          {def.howToPlay.slice(0, 3).map((line, i) => (
+          {def.howToPlay[lang].slice(0, 3).map((line, i) => (
             <li key={i}>{line}</li>
           ))}
         </ul>
       )}
-      {error && <p className="error-text">Cartouche illisible : {error}</p>}
-      {!def && !error && <p className="loading">Chargement...</p>}
+      {error && <p className="error-text">{t.unreadable(error)}</p>}
+      {!def && !error && <p className="loading">{t.loading}</p>}
       {def && <MenuList items={items} onBack={onBack} className="compact" />}
     </Frame>
   );
@@ -90,6 +93,7 @@ export function ScoresScreen({
   onBack: () => void;
 }) {
   const services = useServices();
+  const t = useT();
   const [scores, setScores] = useState<ScoreEntry[] | null>(null);
 
   useEffect(() => {
@@ -104,11 +108,11 @@ export function ScoresScreen({
   });
 
   return (
-    <Frame title={`${entry.name} TOP 10`} footer={<Hint>B retour</Hint>}>
+    <Frame title={t.top10(entry.name)} footer={<Hint>{t.hintBack}</Hint>}>
       {scores === null ? (
-        <p className="loading">Chargement...</p>
+        <p className="loading">{t.loading}</p>
       ) : scores.length === 0 ? (
-        <p className="empty">Aucun score. Sois le premier !</p>
+        <p className="empty">{t.noScores}</p>
       ) : (
         <ol className="scores">
           {scores.map((s, i) => (

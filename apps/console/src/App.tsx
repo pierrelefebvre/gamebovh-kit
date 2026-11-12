@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import type { GameDefinition } from '@gamebovh/sdk';
 import { Emitter, isSystemMessage } from '@gamebovh/sdk/runtime';
 import { attachGamepads, attachKeyboard, watchMenuCombo, watchResetCombo } from './input/hardware.ts';
-import { loadCatalog, loadGame, type CatalogEntry } from './runtime/catalog.ts';
+import { loadCatalog, loadGame, localize, type CatalogEntry } from './runtime/catalog.ts';
+import { useLang, useT } from './i18n.ts';
 import { GameHost } from './runtime/GameHost.tsx';
 import { useServices } from './runtime/services.tsx';
 import { BootScreen } from './screens/Boot.tsx';
@@ -32,7 +33,11 @@ function newSeed(): number {
 
 export function App() {
   const services = useServices();
-  const catalog = useMemo(() => loadCatalog(), []);
+  const t = useT();
+  const lang = useLang();
+  const raw = useMemo(() => loadCatalog(), []);
+  // Fiches traduites dans la langue de la console.
+  const catalog = useMemo(() => ({ ...raw, games: raw.games.map((g) => localize(g, lang)) }), [raw, lang]);
   const [view, setView] = useState<View>({ name: 'boot' });
   const [menuIndex, setMenuIndex] = useState(0);
   const viewRef = useRef(view);
@@ -109,7 +114,7 @@ export function App() {
   let screen: ReactNode;
   switch (view.name) {
     case 'off':
-      screen = <div className="power-off" aria-label="Console éteinte" />;
+      screen = <div className="power-off" aria-label={t.consoleOff} />;
       break;
     case 'boot':
       screen = <BootScreen onDone={afterBoot} />;

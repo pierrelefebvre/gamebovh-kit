@@ -20,6 +20,7 @@ import {
   useScoreGossip,
   type GameProps,
   type Slot,
+  defineTexts,
 } from '@gamebovh/sdk';
 import {
   generateWalls,
@@ -28,7 +29,6 @@ import {
   MID,
   spawnOf,
   TEAM_COLORS,
-  TEAM_NAMES,
   teamOf,
   TOP,
   W,
@@ -83,7 +83,31 @@ interface Ball {
   dir: 1 | -1;
 }
 
+const TEXTS = defineTexts({
+  fr: {
+    teams: ['ROUGES', 'BLEUS'],
+    hits: (n: number) => `${n} touche${n > 1 ? 's' : ''}`,
+    go: 'GO !',
+    yourTeam: (team: string) => `TU ES CHEZ LES ${team}`,
+    controls: 'A LANCER  B ABRI',
+    draw: 'ÉGALITÉ !',
+    victory: (team: string) => `VICTOIRE ${team} !`,
+    robot: 'ROBOT',
+  },
+  en: {
+    teams: ['REDS', 'BLUES'],
+    hits: (n: number) => `${n} hit${n > 1 ? 's' : ''}`,
+    go: 'GO!',
+    yourTeam: (team: string) => `YOU ARE WITH THE ${team}`,
+    controls: 'A THROW  B COVER',
+    draw: 'DRAW!',
+    victory: (team: string) => `${team} WIN!`,
+    robot: 'ROBOT',
+  },
+});
+
 export function Snowball({ ctx }: GameProps<SnowMsg>) {
+  const t = TEXTS[ctx.lang];
   const { canvasProps, get2d } = useCanvas(ctx);
   const players = useRoomPlayers(ctx);
   const { share } = useScoreGossip(ctx);
@@ -135,7 +159,7 @@ export function Snowball({ ctx }: GameProps<SnowMsg>) {
     const p = spawnOf(1);
     s.others.set('bot', {
       id: 'bot',
-      name: 'ROBOT',
+      name: t.robot,
       slot: 1,
       team: 1,
       x: p.x,
@@ -238,7 +262,7 @@ export function Snowball({ ctx }: GameProps<SnowMsg>) {
       .gameOver({
         // Score personnel : le nombre de joueurs adverses que j'ai touchés
         score: s.myHits,
-        display: `${s.myHits} touche${s.myHits > 1 ? 's' : ''}`,
+        display: t.hits(s.myHits),
         outcome,
       })
       .then(() => share());
@@ -434,8 +458,8 @@ export function Snowball({ ctx }: GameProps<SnowMsg>) {
     // Barre de score
     g.fillStyle = PALETTE.night;
     g.fillRect(0, 0, W, 13);
-    drawText(g, `${TEAM_NAMES[0]} ${s.score[0]}`, 3, 3, { color: TEAM_COLORS[0] });
-    drawText(g, `${s.score[1]} ${TEAM_NAMES[1]}`, W - 3, 3, { color: '#7fb2ff', align: 'right' });
+    drawText(g, `${t.teams[0]} ${s.score[0]}`, 3, 3, { color: TEAM_COLORS[0] });
+    drawText(g, `${s.score[1]} ${t.teams[1]}`, W - 3, 3, { color: '#7fb2ff', align: 'right' });
     const secs = Math.max(0, Math.ceil(s.timeLeft / 1000));
     drawText(g, `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, MID, 3, {
       color: PALETTE.snow,
@@ -445,14 +469,14 @@ export function Snowball({ ctx }: GameProps<SnowMsg>) {
     if (s.phase === 'countdown') {
       const n = Math.ceil(s.countdown / 1000);
       panel(g, 70, 46, false);
-      drawText(g, n > 0 ? String(n) : 'GO !', MID, 80, { size: 16, color: PALETTE.red, align: 'center' });
-      drawText(g, `TU ES CHEZ LES ${TEAM_NAMES[myTeam]}`, MID, 100, { color: TEAM_COLORS[myTeam], align: 'center' });
-      drawText(g, 'A LANCER  B ABRI', MID, 112, { color: PALETTE.night, align: 'center' });
+      drawText(g, n > 0 ? String(n) : t.go, MID, 80, { size: 16, color: PALETTE.red, align: 'center' });
+      drawText(g, t.yourTeam(t.teams[myTeam]), MID, 100, { color: TEAM_COLORS[myTeam], align: 'center' });
+      drawText(g, t.controls, MID, 112, { color: PALETTE.night, align: 'center' });
     }
 
     if (s.phase === 'over') {
       const [red, blue] = s.score;
-      const title = red === blue ? 'ÉGALITÉ !' : `VICTOIRE ${TEAM_NAMES[red > blue ? 0 : 1]} !`;
+      const title = red === blue ? t.draw : t.victory(t.teams[red > blue ? 0 : 1]);
       panel(g, 76, 50, true);
       drawText(g, title, MID, 86, { color: PALETTE.gold, align: 'center', shadow: PALETTE.night });
       drawText(g, `${red} - ${blue}`, MID, 102, { size: 16, color: PALETTE.snow, align: 'center' });

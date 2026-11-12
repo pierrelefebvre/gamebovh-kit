@@ -9,10 +9,14 @@
  *
  * Règle du jeu : déplace le bonnet avec la croix, attrape les flocons.
  * 3 flocons ratés = fin de partie.
+ *
+ * Langues : la console est en français OU en anglais (`ctx.lang`).
+ * Chaque texte affiché est déclaré dans les deux langues avec `defineTexts`.
  */
 import { useRef } from 'react';
 import {
   defineGame,
+  defineTexts,
   drawText,
   PALETTE,
   useButton,
@@ -27,6 +31,22 @@ const PLAYER_Y = 190;
 const PLAYER_SPEED = 0.12; // pixels par milliseconde
 const LIVES = 3;
 
+/*
+ * Tous les textes du jeu, en français et en anglais.
+ * Si une clé manque d'un côté, `pnpm check` le signale.
+ * Un texte qui contient un nombre devient une petite fonction.
+ */
+const TEXTS = defineTexts({
+  fr: {
+    score: (n: number) => `SCORE ${n}`,
+    lives: (n: number) => `VIES ${n}`,
+  },
+  en: {
+    score: (n: number) => `SCORE ${n}`,
+    lives: (n: number) => `LIVES ${n}`,
+  },
+});
+
 interface Flake {
   x: number;
   y: number;
@@ -40,6 +60,8 @@ interface Flake {
 function CatchTheFlakes({ ctx }: GameProps) {
   const { width, height } = ctx.screen;
   const { canvasProps, get2d } = useCanvas(ctx);
+  // Les textes dans la langue choisie sur la console ('fr' ou 'en').
+  const t = TEXTS[ctx.lang];
 
   // L'état du jeu vit dans un useRef : il change 60 fois par seconde,
   // pas besoin de faire re-rendre React à chaque image.
@@ -115,8 +137,8 @@ function CatchTheFlakes({ ctx }: GameProps) {
     g.fillStyle = PALETTE.ice;
     g.fillRect(0, height - 12, width, 12);
 
-    drawText(g, `SCORE ${s.score}`, 6, 6);
-    drawText(g, `VIES ${Math.max(0, s.lives)}`, width - 6, 6, { color: PALETTE.red, align: 'right' });
+    drawText(g, t.score(s.score), 6, 6);
+    drawText(g, t.lives(Math.max(0, s.lives)), width - 6, 6, { color: PALETTE.red, align: 'right' });
   });
 
   return <canvas {...canvasProps} />;
@@ -127,5 +149,9 @@ export default defineGame({
   component: CatchTheFlakes,
   // Plus de flocons = mieux : le plus grand score gagne.
   scoreOrder: 'desc',
-  howToPlay: ['Déplace-toi avec la croix.', 'Attrape les flocons.', '3 flocons ratés et c\'est fini !'],
+  // Règles affichées par la console avant la partie : 3 lignes max, dans les deux langues.
+  howToPlay: {
+    fr: ['Déplace-toi avec la croix.', 'Attrape les flocons.', "3 flocons ratés et c'est fini !"],
+    en: ['Move with the d-pad.', 'Catch the snowflakes.', 'Miss 3 and it is game over!'],
+  },
 });

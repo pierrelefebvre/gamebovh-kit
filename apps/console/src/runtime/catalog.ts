@@ -1,9 +1,11 @@
-import type { GameDefinition, GameManifest } from '@gamebovh/sdk';
+import type { GameDefinition, GameManifest, Lang } from '@gamebovh/sdk';
 import catalogJson from '../../../../games.json';
 import { ONLY_GAME } from './config.ts';
 
 export interface CatalogEntry extends GameManifest {
   module: string;
+  /** Nom et description en anglais (le reste de la fiche est en français). */
+  en: { name: string; description: string };
 }
 
 export interface Catalog {
@@ -50,6 +52,7 @@ export function loadCatalog(): Catalog {
     const where = `games.json #${index + 1}${e?.id ? ` (${e.id})` : ''}`;
     const missing = REQUIRED.filter((k) => e?.[k] === undefined || e?.[k] === '');
     if (missing.length) return errors.push(`${where}: missing ${missing.join(', ')}.`);
+    if (!e.en?.name || !e.en?.description) return errors.push(`${where}: missing "en": { "name", "description" }.`);
     if (!/^[a-z0-9_-]+$/.test(e.id)) return errors.push(`${where}: id must be lowercase letters, digits, - or _.`);
     if (seen.has(e.id)) return errors.push(`${where}: duplicate id.`);
     if (!(e.minPlayers >= 1 && e.maxPlayers <= 4 && e.minPlayers <= e.maxPlayers)) {
@@ -117,7 +120,12 @@ export function loadGame(entry: CatalogEntry): Promise<GameDefinition> {
   return promise;
 }
 
+/** Fiche de la cartouche dans la langue demandée. */
+export function localize(entry: CatalogEntry, lang: Lang): CatalogEntry {
+  return lang === 'en' ? { ...entry, name: entry.en.name, description: entry.en.description } : entry;
+}
+
 export function manifestOf(entry: CatalogEntry): GameManifest {
-  const { module: _module, ...manifest } = entry;
+  const { module: _module, en: _en, ...manifest } = entry;
   return manifest;
 }

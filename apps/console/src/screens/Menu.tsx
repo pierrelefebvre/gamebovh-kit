@@ -3,6 +3,7 @@ import type { ScoreEntry } from '@gamebovh/sdk';
 import { loadGame, type CatalogEntry } from '../runtime/catalog.ts';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { Snow } from './ui.tsx';
+import { useT, type Strings } from '../i18n.ts';
 
 /** Couleurs d'étiquette de cartouche, une par position dans le catalogue. */
 const LABELS = [
@@ -11,10 +12,10 @@ const LABELS = [
   { sky: '#d9ccff', far: '#5b3fd6', near: '#2b1a8f', a: '#ff6b3d', b: '#2ec4d6' },
 ];
 
-export function playersTag(e: CatalogEntry): string {
-  if (e.maxPlayers === 1) return 'SOLO';
-  if (e.minPlayers === e.maxPlayers) return `${e.minPlayers} JOUEURS`;
-  return `${e.minPlayers} À ${e.maxPlayers} JOUEURS`;
+export function playersTag(e: CatalogEntry, t: Strings): string {
+  if (e.maxPlayers === 1) return t.solo;
+  if (e.minPlayers === e.maxPlayers) return t.playersN(e.minPlayers);
+  return t.playersRange(e.minPlayers, e.maxPlayers);
 }
 
 /** Étiquette illustrée de la cartouche : montagnes, neige et deux petits skieurs. */
@@ -53,6 +54,7 @@ export function MenuScreen({
 }) {
   const services = useServices();
   const { audio } = services;
+  const t = useT();
   const [index, setIndex] = useState(Math.min(initial, Math.max(0, games.length - 1)));
   const [best, setBest] = useState<ScoreEntry | null>(null);
   const entry = games[index];
@@ -102,10 +104,10 @@ export function MenuScreen({
     return (
       <div className="carousel">
         <Snow />
-        <div className="carousel-title">CHOISIS TA CARTOUCHE</div>
+        <div className="carousel-title">{t.chooseCartridge}</div>
         <div className="empty">
-          <p>Aucune cartouche trouvée.</p>
-          <p className="small">Ajoute un jeu dans games/ et une ligne dans games.json.</p>
+          <p>{t.noCartridge}</p>
+          <p className="small">{t.noCartridgeHelp}</p>
         </div>
       </div>
     );
@@ -114,13 +116,13 @@ export function MenuScreen({
   return (
     <div className="carousel">
       <Snow count={18} />
-      <div className="carousel-title">CHOISIS TA CARTOUCHE</div>
+      <div className="carousel-title">{t.chooseCartridge}</div>
       <div className="carousel-count">
         ◆ {index + 1} / {games.length} ◆
       </div>
 
       <div className="carousel-stage">
-        <button type="button" className="side-panel left" aria-label="Cartouche précédente" onClick={() => move(-1)}>
+        <button type="button" className="side-panel left" aria-label={t.previous} onClick={() => move(-1)}>
           ◀
         </button>
         <button
@@ -139,31 +141,31 @@ export function MenuScreen({
           </span>
           <span className="cartridge-team">{entry.team}</span>
         </button>
-        <button type="button" className="side-panel right" aria-label="Cartouche suivante" onClick={() => move(1)}>
+        <button type="button" className="side-panel right" aria-label={t.next} onClick={() => move(1)}>
           ▶
         </button>
       </div>
 
       <div className="tags">
-        <span className="tag red">{playersTag(entry)}</span>
-        <span className="tag blue">{entry.maxPlayers > 1 ? 'EN LIGNE' : 'HORS LIGNE'}</span>
-        <span className="tag gold">{best ? `RECORD ${best.display ?? best.score}` : 'AUCUN SCORE'}</span>
+        <span className="tag red">{playersTag(entry, t)}</span>
+        <span className="tag blue">{entry.maxPlayers > 1 ? t.online : t.offline}</span>
+        <span className="tag gold">{best ? t.record(String(best.display ?? best.score)) : t.noScore}</span>
       </div>
 
       <p className="carousel-desc">{entry.description}</p>
 
       <div className="carousel-hints">
         <span>
-          <i className="chip">A</i>JOUER
+          <i className="chip">A</i>{t.play}
         </span>
         <span>
-          <i className="chip">B</i>SCORES
+          <i className="chip">B</i>{t.scores}
         </span>
-        {entry.maxPlayers > 1 && <span className="gold-text">START ▸ SALLE</span>}
-        <span className="dim">SELECT ▸ RÉGLAGES</span>
+        {entry.maxPlayers > 1 && <span className="gold-text">{t.roomShortcut}</span>}
+        <span className="dim">{t.settingsShortcut}</span>
       </div>
 
-      {errors.length > 0 && <div className="catalog-errors">{errors.length} erreur(s) de catalogue, voir la console</div>}
+      {errors.length > 0 && <div className="catalog-errors">{t.catalogErrors(errors.length)}</div>}
     </div>
   );
 }

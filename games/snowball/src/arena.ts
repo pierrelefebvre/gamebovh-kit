@@ -12,7 +12,6 @@ export const MID = W / 2;
 /** Équipe d'un joueur selon sa place : 0 et 2 = rouges (à gauche), 1 et 3 = bleus (à droite). */
 export type Team = 0 | 1;
 export const teamOf = (slot: Slot): Team => (slot % 2) as Team;
-export const TEAM_NAMES = ['ROUGES', 'BLEUS'] as const;
 export const TEAM_COLORS = ['#ff4053', '#2a7cf0'] as const;
 
 export interface Wall {

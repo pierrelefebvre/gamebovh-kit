@@ -30,6 +30,18 @@ export const PALETTE = {
 /** Couleur de chaque place de salle (slot 0 à 3), la même que dans le lobby. */
 export const PLAYER_COLORS = [PALETTE.red, PALETTE.pine, PALETTE.gold, PALETTE.ice] as const;
 
+/* ================================================================
+ * Langues
+ * ================================================================ */
+
+/** Langues de la console : français et anglais. */
+export type Lang = 'fr' | 'en';
+
+export const LANGS: readonly Lang[] = ['fr', 'en'];
+
+/** Une valeur dans chaque langue, par exemple `{ fr: 'Perdu', en: 'Game over' }`. */
+export type Localized<T = string> = Readonly<Record<Lang, T>>;
+
 /** Fonction à appeler pour se désabonner. */
 export type Unsubscribe = () => void;
 
@@ -207,6 +219,7 @@ export interface MultiplayerApi<TMsg extends GameMessage = GameMessage> {
  * Contexte transmis au jeu
  * ================================================================ */
 
+/** Fiche de la cartouche, tirée de games.json, déjà traduite dans la langue de la console. */
 export interface GameManifest {
   id: string;
   name: string;
@@ -222,6 +235,12 @@ export interface GameContext<TMsg extends GameMessage = GameMessage> {
   screen: { width: number; height: number };
   /** Le joueur sur cet appareil. `id` est stable (sert aux scores). */
   player: { id: string; nickname: string };
+  /**
+   * Langue choisie sur la console : 'fr' ou 'en'.
+   * Détectée automatiquement, modifiable dans les réglages. Ne change pas pendant une partie.
+   * Tout texte affiché par le jeu doit exister dans les deux langues (voir `defineTexts`).
+   */
+  lang: Lang;
   /**
    * Graine aléatoire de la partie, identique pour tous les joueurs d'une salle.
    * Avec `createRandom(ctx.seed)`, tout le monde obtient la même piste, les mêmes obstacles...
@@ -246,6 +265,6 @@ export interface GameDefinition<TMsg extends GameMessage = GameMessage> {
   component: ComponentType<GameProps<TMsg>>;
   /** 'desc' : plus grand = meilleur (points). 'asc' : plus petit = meilleur (chrono). */
   scoreOrder: 'asc' | 'desc';
-  /** Règles affichées avant la partie, en français, 3 lignes courtes maximum. */
-  howToPlay?: string[];
+  /** Règles affichées avant la partie, 3 lignes courtes maximum, en français et en anglais. */
+  howToPlay?: Localized<string[]>;
 }

@@ -2,12 +2,14 @@ import { useEffect } from 'react';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { OvhLogo } from '../shell/OvhLogo.tsx';
 import { Snow } from './ui.tsx';
+import { useT } from '../i18n.ts';
 
 const BOOT_MS = 3400;
 
 /** Animation de démarrage : le logo descend, "ding", puis on passe au menu. */
 export function BootScreen({ onDone }: { onDone: () => void }) {
   const { audio } = useServices();
+  const t = useT();
 
   useEffect(() => {
     const ding = window.setTimeout(() => {
@@ -32,7 +34,7 @@ export function BootScreen({ onDone }: { onDone: () => void }) {
       </div>
       <div className="boot-sub">ANNUAL PARTY 2026</div>
       <div className="boot-mountains" aria-hidden="true" />
-      <div className="boot-credits">Créé par les étudiants de Lille Ynov Campus et leur équipe pédagogique</div>
+      <div className="boot-credits">{t.credits}</div>
     </div>
   );
 }

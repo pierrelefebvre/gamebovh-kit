@@ -4,6 +4,8 @@ Console de mini-jeux façon console portable rétro, créée pour l'**Annual Par
 
 Ce dépôt est le **kit de départ** du challenge : la console, le framework, le serveur de jeu, une cartouche modèle et deux jeux de démonstration. Chaque équipe en fait sa propre copie et y ajoute **son** jeu.
 
+La console s'affiche **en français et en anglais** (selon le navigateur, modifiable dans les réglages) et se joue sur **téléphone, tablette et ordinateur**, au doigt ou au clavier AZERTY comme QWERTY. Votre jeu doit faire de même : voir [ETUDIANTS.md](ETUDIANTS.md), section 5.
+
 ## Par où commencer
 
 1. **[CONSIGNES.md](CONSIGNES.md)** : le sujet, les contraintes, le calendrier, la soutenance et l'évaluation.
