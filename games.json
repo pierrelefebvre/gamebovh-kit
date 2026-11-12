@@ -1,0 +1,34 @@
+{
+  "games": [
+    {
+      "id": "_template",
+      "name": "Attrape-Flocons",
+      "team": "Équipe GameBOVH",
+      "version": "1.0.0",
+      "description": "La cartouche modèle. Attrape les flocons avec ton bonnet à pompon.",
+      "minPlayers": 1,
+      "maxPlayers": 1,
+      "module": "games/_template/src/index.tsx"
+    },
+    {
+      "id": "slalom",
+      "name": "Slalom Express",
+      "team": "Équipe GameBOVH",
+      "version": "1.0.0",
+      "description": "Dévale la piste, passe toutes les portes, bats le chrono. Jusqu'à 4 skieurs sur la même piste.",
+      "minPlayers": 1,
+      "maxPlayers": 4,
+      "module": "games/slalom/src/index.tsx"
+    },
+    {
+      "id": "snowball",
+      "name": "Bataille de neige",
+      "team": "Équipe GameBOVH",
+      "version": "1.0.0",
+      "description": "Rouges contre bleus : vise, lance, abrite-toi. Première équipe à 5 touches gagne.",
+      "minPlayers": 1,
+      "maxPlayers": 4,
+      "module": "games/snowball/src/index.tsx"
+    }
+  ]
+}

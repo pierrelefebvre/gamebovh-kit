@@ -1,0 +1,25 @@
+{
+  "name": "gamebovh",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:game": "node scripts/dev.mjs --only",
+    "build": "node scripts/check-catalog.mjs && pnpm --filter @gamebovh/console build",
+    "preview": "pnpm --filter @gamebovh/console preview",
+    "server": "pnpm --filter @gamebovh/server dev",
+    "test": "vitest run",
+    "typecheck": "pnpm -r --workspace-concurrency=1 exec tsc --noEmit -p .",
+    "check": "node scripts/kit-check.mjs && node scripts/check-catalog.mjs && pnpm typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "fake-indexeddb": "^6.2.7",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  }
+}
