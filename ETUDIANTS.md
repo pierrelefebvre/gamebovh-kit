@@ -40,7 +40,7 @@ C'est tout. Si vous vous retrouvez à modifier un autre fichier, c'est qu'il y a
 ### Prérequis
 
 - **Node.js 22 ou plus récent** : vérifiez avec `node -v`.
-- **pnpm** : activez-le une fois avec `corepack enable`, puis vérifiez avec `pnpm -v`.
+- **pnpm** : activez-le une fois avec `corepack enable`, puis vérifiez avec `pnpm -v`. Si `corepack enable` refuse (droits administrateur), installez-le avec `npm install -g pnpm`.
 - **Git** et un compte **GitHub** pour chaque membre de l'équipe.
 - Un éditeur de code, par exemple VS Code.
 
@@ -48,9 +48,10 @@ C'est tout. Si vous vous retrouvez à modifier un autre fichier, c'est qu'il y a
 
 Un seul membre de l'équipe crée le dépôt de l'équipe :
 
-1. Sur la page GitHub du kit, cliquez sur **Use this template** puis **Create a new repository**.
-2. Choisissez votre compte, nommez le dépôt (par exemple `gamebovh-equipe-yeti`) et cochez **Private**.
-3. Dans **Settings > Collaborators**, ajoutez les autres membres de l'équipe **et l'équipe pédagogique**.
+1. Connectez-vous à GitHub, puis ouvrez **https://github.com/pierrelefebvre/gamebovh-kit/generate**.
+   C'est la page de création d'un dépôt à partir du kit. Depuis la page du kit, on y arrive aussi avec le bouton vert **Use this template** puis **Create a new repository** : ce bouton n'apparaît que si vous êtes connecté.
+2. Choisissez votre compte comme propriétaire, nommez le dépôt (par exemple `gamebovh-equipe-yeti`), cochez **Private**, puis cliquez sur **Create repository**.
+3. Dans votre nouveau dépôt, **Settings > Collaborators > Add people** : ajoutez les autres membres de l'équipe **et le compte de l'équipe pédagogique, `pierrelefebvre`**. Chaque invité doit accepter l'invitation reçue par email.
 
 Ensuite, chaque membre, sur son ordinateur :
 
@@ -62,6 +63,8 @@ pnpm dev:game _template
 ```
 
 Ouvrez http://localhost:5173 : la console démarre avec la cartouche modèle. Si ça marche, votre installation est bonne.
+
+**`git clone` demande un mot de passe et le refuse ?** GitHub n'accepte plus les mots de passe pour Git. Le plus simple : installez l'outil GitHub (`gh`), lancez `gh auth login` et suivez les étapes, puis recommencez le `git clone`. Autre solution : clonez avec GitHub Desktop.
 
 ## 3. Comment fonctionne GameBOVH
 

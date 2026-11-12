@@ -12,7 +12,13 @@ Ce dépôt est le **kit de départ** du challenge : la console, le framework, le
 
 ## Démarrage rapide
 
-Un membre de l'équipe clique sur **Use this template** (en haut de cette page), crée le dépôt **privé** de l'équipe et y invite les autres membres et l'équipe pédagogique. Puis, chacun :
+**Un seul membre de l'équipe**, connecté à GitHub, ouvre **https://github.com/pierrelefebvre/gamebovh-kit/generate** (ou clique sur le bouton vert **Use this template** de cette page, visible seulement une fois connecté), puis :
+
+1. choisit son compte, nomme le dépôt de l'équipe et coche **Private** ;
+2. clique sur **Create repository** ;
+3. dans le nouveau dépôt, **Settings > Collaborators > Add people**, invite les autres membres de l'équipe et l'équipe pédagogique (`pierrelefebvre`).
+
+Ensuite, **chaque membre** (après avoir accepté l'invitation reçue par email) :
 
 ```bash
 git clone <adresse-du-dépôt-de-l-équipe>
