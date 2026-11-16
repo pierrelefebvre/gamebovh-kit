@@ -79,7 +79,7 @@
     "server/src/static.ts": "a41d6f5bab964b68054be79f14f6355c46c859a1f7b849929a90c3772d3dc793",
     "server/tsconfig.json": "2c76d3f3141482eba8c71d142422107621ccabc9a1c8ea1f058a6c98bb8c7a8b",
     "scripts/check-catalog.mjs": "baef5255adae3796906a1c1ce43738d4e4368f942e8930c4390168494642db8f",
-    "scripts/dev.mjs": "f14d3b67f5c4d85900b75c4f0fa03b59d8dddca883fb6a31c9fd86ff489feb93",
+    "scripts/dev.mjs": "75d88f096e8803602a82518fa930ea4016f56ca0286fbadbceb6a6d054fd2184",
     "scripts/kit-check.mjs": "41f9f231a6dea0cd8e9d993fdeb04ebf08145701ed18e11d8ec424d11c1e7418",
     "docs/PROTOCOL.md": "a1a615281d7e8d0ab9f0638de99c23c2c0658de02f84311d5be46b4c4d971ccb",
     "games/_template/README.md": "a87848c72d449116195865eba12bdb803c6de7a645516f5565faa4eab87c9fbf",

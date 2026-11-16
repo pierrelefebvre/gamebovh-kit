@@ -30,9 +30,24 @@ if (args[0] === '--only') {
 // éventuellement imposé par un outil de preview au processus parent.
 const serverEnv = { ...env, PORT: env.WS_PORT || '8787' };
 
+// Sous Windows, pnpm est un script (pnpm.cmd) : Node ne peut le lancer qu'à travers le shell.
+const isWindows = process.platform === 'win32';
+
+function runPnpm(pnpmArgs, childEnv) {
+  const child = isWindows
+    ? spawn(`pnpm ${pnpmArgs.join(' ')}`, { cwd: root, env: childEnv, stdio: 'inherit', shell: true })
+    : spawn('pnpm', pnpmArgs, { cwd: root, env: childEnv, stdio: 'inherit' });
+  child.on('error', (error) => {
+    console.error(`[gamebovh] Impossible de lancer pnpm (${error.message}).`);
+    console.error('[gamebovh] Installez-le avec "corepack enable" ou "npm install -g pnpm", puis rouvrez le terminal.');
+    process.exit(1);
+  });
+  return child;
+}
+
 const children = [
-  spawn('pnpm', ['--filter', '@gamebovh/server', 'dev'], { cwd: root, env: serverEnv, stdio: 'inherit' }),
-  spawn('pnpm', ['--filter', '@gamebovh/console', 'dev'], { cwd: root, env, stdio: 'inherit' }),
+  runPnpm(['--filter', '@gamebovh/server', 'dev'], serverEnv),
+  runPnpm(['--filter', '@gamebovh/console', 'dev'], env),
 ];
 
 const stop = () => {
