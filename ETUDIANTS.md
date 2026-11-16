@@ -124,6 +124,8 @@ Il ne doit pas commencer par `_` (réservé au modèle) et ne doit pas déjà ex
 cp -r games/_template games/course-de-luges
 ```
 
+Cette commande marche dans PowerShell, Git Bash, macOS et Linux. Dans l'invite de commandes Windows (`cmd`), copiez plutôt le dossier dans l'explorateur de fichiers. Le sous-dossier `node_modules` du modèle n'a pas besoin d'être copié : `pnpm install` le recrée.
+
 Ne travaillez **jamais** directement dans `games/_template` : c'est un fichier fourni (voir la section 8).
 
 ### Étape 3 : renommer le paquet
@@ -406,7 +408,22 @@ git checkout -- chemin/du/fichier
 - Un message de commit clair : « Ajoute le compte à rebours », « Corrige la collision avec les murs ».
 - Ne commitez jamais `node_modules` ni `dist` (ils sont déjà ignorés).
 
-**Récupérer une mise à jour du kit** (correction de bug publiée par l'équipe pédagogique) : la marche à suivre sera donnée au moment de la mise à jour. Comme vous n'avez touché qu'à votre dossier et à votre ligne de `games.json`, elle se fera sans conflit.
+**Récupérer une mise à jour du kit** (correction publiée par l'équipe pédagogique). Une seule fois, déclarez le kit comme source :
+
+```bash
+git remote add kit https://github.com/pierrelefebvre/gamebovh-kit.git
+```
+
+Puis, à chaque mise à jour annoncée, un membre de l'équipe récupère les fichiers indiqués dans l'annonce, **toujours avec `.kit-lock.json`** (exemple) :
+
+```bash
+git fetch kit
+git checkout kit/main -- scripts ETUDIANTS.md .kit-lock.json
+git commit -m "Récupère la mise à jour du kit"
+git push
+```
+
+Les autres membres font `git pull`. Comme vous n'avez touché qu'à votre dossier et à votre ligne de `games.json`, il n'y a pas de conflit, et `pnpm check` reste au vert.
 
 ## 12. Rendre votre jeu
 
@@ -453,5 +470,19 @@ L'équipe pédagogique récupère alors **uniquement** votre dossier `games/<vot
 **On veut un écran plus grand.** Non : 240 × 216 pour tout le monde, c'est l'identité de la console. La console agrandit l'image toute seule.
 
 **Peut-on utiliser un moteur de jeu (Phaser, PixiJS...) ?** Seulement après accord de l'équipe pédagogique, et à condition qu'il dessine dans le canvas fourni par `useCanvas`, qu'il passe par `ctx` pour les boutons et le son, et qu'il reste léger.
+
+### Sous Windows
+
+**`spawn pnpm ENOENT` au lancement de `pnpm dev:game`.** Votre copie du kit date d'avant le correctif : récupérez la mise à jour (section 11) avec `git checkout kit/main -- scripts ETUDIANTS.md .kit-lock.json`.
+
+**PowerShell refuse de lancer pnpm (« l'exécution de scripts est désactivée sur ce système »).** Autorisez les scripts pour votre compte seulement, une fois : `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, puis rouvrez le terminal. Sinon, utilisez le terminal Git Bash ou l'invite de commandes (`cmd`).
+
+**`corepack enable` échoue avec `EPERM`.** Il faut des droits administrateur : installez pnpm avec `npm install -g pnpm` à la place.
+
+**`pnpm` est introuvable juste après l'avoir installé.** Fermez et rouvrez le terminal (et VS Code), pour qu'il voie le nouveau programme.
+
+**Une fenêtre du pare-feu Windows s'ouvre au lancement.** Autorisez Node.js sur les réseaux privés : sans cela, la console marche sur votre ordinateur, mais pas sur les téléphones du même Wi-Fi.
+
+**Erreurs étranges pendant `pnpm install` (`EPERM`, `EBUSY`, liens impossibles).** Évitez les dossiers synchronisés par OneDrive (Bureau, Documents) : clonez le dépôt dans un dossier simple, par exemple `C:\dev\`. Fermez aussi les terminaux qui lancent encore la console avant de relancer `pnpm install`.
 
 **Le multijoueur ne marche pas entre nos téléphones.** Ils doivent être sur le même Wi-Fi que l'ordinateur qui lance `pnpm dev:game`, et ouvrir l'adresse « Network », pas `localhost`. Certains réseaux d'école bloquent les connexions entre appareils : testez alors avec deux fenêtres sur un même ordinateur.

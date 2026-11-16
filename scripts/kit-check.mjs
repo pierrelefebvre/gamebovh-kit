@@ -32,7 +32,8 @@ const PROTECTED_FILES = [
   'CONSIGNES.md',
   'ETUDIANTS.md',
 ];
-const IGNORED = new Set(['node_modules', 'dist', '.DS_Store']);
+// Fichiers créés tout seuls par macOS et Windows : jamais comptés comme « ajoutés »
+const IGNORED = new Set(['node_modules', 'dist', '.DS_Store', 'Thumbs.db', 'desktop.ini']);
 
 const toPosix = (p) => p.split(sep).join('/');
 

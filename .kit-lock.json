@@ -80,7 +80,7 @@
     "server/tsconfig.json": "2c76d3f3141482eba8c71d142422107621ccabc9a1c8ea1f058a6c98bb8c7a8b",
     "scripts/check-catalog.mjs": "baef5255adae3796906a1c1ce43738d4e4368f942e8930c4390168494642db8f",
     "scripts/dev.mjs": "75d88f096e8803602a82518fa930ea4016f56ca0286fbadbceb6a6d054fd2184",
-    "scripts/kit-check.mjs": "41f9f231a6dea0cd8e9d993fdeb04ebf08145701ed18e11d8ec424d11c1e7418",
+    "scripts/kit-check.mjs": "73cd09468e9a709fc06e71c19dd05f8f6aad811bc6044a202ce448cf16e52acf",
     "docs/PROTOCOL.md": "a1a615281d7e8d0ab9f0638de99c23c2c0658de02f84311d5be46b4c4d971ccb",
     "games/_template/README.md": "a87848c72d449116195865eba12bdb803c6de7a645516f5565faa4eab87c9fbf",
     "games/_template/package.json": "0865206c23621176867b1368f736647fbf38a9026a84dd62dc0163c0834af9a5",
@@ -108,7 +108,7 @@
     ".gitignore": "4f4a7dd382e64dac3d6b67c5b99f27554a33418866a2610614f27ff312f1b4bf",
     "README.md": "c0183fa86d20c6bcb1fa82a9d11c88a21bda379a51960311cbffffbe49133355",
     "CONSIGNES.md": "5c9492ae61318e3cbe7568abdbc75eda6e07fdc635279312f696eafec6e12561",
-    "ETUDIANTS.md": "11dae8a0143d2d0ae4494ae36d1bdf5f43ab7d0b17fa63ed4d63f81b60339d3f"
+    "ETUDIANTS.md": "c566c465394f427eccb69ace6ca4ab0955a0f91ffc3edbbaae41faaac462f274"
   },
   "games": [
     {
