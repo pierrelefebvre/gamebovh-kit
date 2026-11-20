@@ -18,7 +18,14 @@ Tout est dans `src/index.tsx`, commenté pas à pas :
 - `useCanvas` pour dessiner, `useGameLoop` pour la boucle de jeu ;
 - `ctx.input.isDown` pour un bouton maintenu, `useButton` pour un appui ;
 - les sons (`ctx.audio.play`) et la vibration ;
-- la fin de partie avec `ctx.lifecycle.gameOver({ score })`.
+- la fin de partie avec `ctx.lifecycle.gameOver({ score })` ;
+- l'image de la cartouche dans le menu (`cartridge.png`, 84 × 42) ;
+- l'habillage de la fiche du jeu (`theme` : fond `src/assets/menu.png`, couleur d'accent, police du titre) ;
+- une police à soi avec `defineFont` (le score s'affiche en Space Mono).
+
+## Crédits
+
+- Police Space Mono, par Colophon Foundry, licence SIL Open Font License 1.1 (https://openfontlicense.org).
 
 ## Partir de ce modèle
 

@@ -784,6 +784,31 @@ button {
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #0d32c9 0%, #0722a0 100%);
+  background-size: cover;
+  background-position: center;
+  image-rendering: pixelated;
+}
+
+/* Habillage d'un jeu (GameTheme) : couleur d'accent sur le titre, le curseur et la ligne choisie */
+.frame.themed .frame-title,
+.frame.themed .title-right,
+.frame.themed .menu-cursor,
+.frame.themed .menu-detail {
+  color: var(--accent, var(--gold));
+}
+
+.frame.themed .frame-title {
+  color: var(--accent, white);
+}
+
+.frame.themed .menu-item.is-selected {
+  background: color-mix(in srgb, var(--accent, #ffffff) 30%, transparent);
+}
+
+.frame-title.custom-font {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  font-weight: 400;
 }
 
 .frame-title {
@@ -1002,6 +1027,14 @@ button {
   height: 42px;
   overflow: hidden;
   border-radius: 1px;
+}
+
+/* Image d'étiquette fournie par le jeu (games/<id>/cartridge.png) */
+.cart-image {
+  display: block;
+  width: 84px;
+  object-fit: cover;
+  image-rendering: pixelated;
 }
 
 .mount {

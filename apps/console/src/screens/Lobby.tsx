@@ -4,7 +4,7 @@ import {
   ROOM_CODE_LENGTH,
   normalizeRoomCode,
 } from '@gamebovh/protocol';
-import { PLAYER_COLORS, type Room } from '@gamebovh/sdk';
+import { PLAYER_COLORS, type GameTheme, type Room } from '@gamebovh/sdk';
 import type { CatalogEntry } from '../runtime/catalog.ts';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { Frame, Hint } from './ui.tsx';
@@ -37,10 +37,12 @@ function useRoom(): Room | null {
 /** Saisie d'un code de salle à la croix (ou au clavier). */
 export function JoinScreen({
   entry,
+  theme,
   onBack,
   onJoined,
 }: {
   entry: CatalogEntry;
+  theme?: GameTheme;
   onBack: () => void;
   onJoined: () => void;
 }) {
@@ -107,6 +109,7 @@ export function JoinScreen({
 
   return (
     <Frame
+      theme={theme}
       title={t.joinTitle(entry.name)}
       footer={
         <>
@@ -145,11 +148,13 @@ export function JoinScreen({
  */
 export function LobbyScreen({
   entry,
+  theme,
   create,
   onLeave,
   onStart,
 }: {
   entry: CatalogEntry;
+  theme?: GameTheme;
   create: boolean;
   onLeave: () => void;
   onStart: () => void;
@@ -196,6 +201,7 @@ export function LobbyScreen({
 
   return (
     <Frame
+      theme={theme}
       title={t.roomTitle(entry.name)}
       footer={
         <>

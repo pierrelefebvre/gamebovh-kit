@@ -6,6 +6,7 @@
 export * from './contract.ts';
 export { defineGame } from './defineGame.ts';
 export { defineTexts, detectLang } from './i18n.ts';
+export { defineFont, fontFamily, loadFont, type GameFont } from './fonts.ts';
 export {
   useButton,
   useCanvas,

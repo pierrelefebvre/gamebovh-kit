@@ -137,6 +137,19 @@ function MonJeu({ ctx }: GameProps) {
 - Le nom et la description de ta ligne de `games.json` ont aussi leur version anglaise, dans `"en"`.
 
 
+### Habillage : cartouche, fiche, police
+
+- **Image de cartouche** : `games/<id>/cartridge.png`, 84 × 42 (ou × 2, × 3), moins de 100 Ko. Couleurs dans `games.json` : `"cartridge": { "color", "labelColor", "textColor" }`.
+- **Fiche du jeu** (fiche, salle, scores, toujours gérés par la console) : `theme` dans `defineGame`.
+
+  ```tsx
+  theme: { background: fondUrl /* 240 x 216 */, accent: '#f2b134', titleFont: TITLE_FONT }
+  ```
+
+- **Police du jeu** : `defineFont(nom, url)` puis `drawText(g, texte, x, y, { font })`. Chargée au premier usage, police de la console en secours, moins de 200 Ko, avec accents, licence libre créditée. `loadFont(font)` renvoie une promesse si tu veux attendre le chargement ; `fontFamily(font)` donne la valeur CSS pour un jeu en DOM.
+
+Tout est montré dans `games/_template`.
+
 ## 3. L'écran
 
 L'écran fait **240 × 216 pixels**, quelle que soit la taille réelle du téléphone ou de l'ordinateur : la console agrandit l'image toute seule. Tu dessines toujours dans ces 240 × 216 pixels.

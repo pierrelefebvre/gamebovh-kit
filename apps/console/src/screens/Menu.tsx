@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ScoreEntry } from '@gamebovh/sdk';
-import { loadGame, type CatalogEntry } from '../runtime/catalog.ts';
+import { cartridgeImage, loadGame, type CatalogEntry } from '../runtime/catalog.ts';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { Snow } from './ui.tsx';
 import { useT, type Strings } from '../i18n.ts';
@@ -18,8 +18,13 @@ export function playersTag(e: CatalogEntry, t: Strings): string {
   return t.playersRange(e.minPlayers, e.maxPlayers);
 }
 
-/** Étiquette illustrée de la cartouche : montagnes, neige et deux petits skieurs. */
-function CartridgeArt({ index }: { index: number }) {
+/**
+ * Étiquette illustrée de la cartouche : l'image du jeu (games/<id>/cartridge.png) s'il en a une,
+ * sinon des montagnes, de la neige et deux petits skieurs.
+ */
+function CartridgeArt({ index, entry }: { index: number; entry: CatalogEntry }) {
+  const image = cartridgeImage(entry.id);
+  if (image) return <img className="cart-art cart-image" src={image} alt="" draggable={false} />;
   const c = LABELS[index % LABELS.length];
   return (
     <div className="cart-art" style={{ background: c.sky }}>
@@ -129,17 +134,22 @@ export function MenuScreen({
           type="button"
           key={entry.id}
           className="cartridge"
+          style={entry.cartridge?.color ? { background: entry.cartridge.color } : undefined}
           onClick={() => {
             audio.play('confirm');
             onPick(entry, index);
           }}
         >
           <span className="cartridge-ridges" />
-          <span className="cartridge-label">
-            <CartridgeArt index={index} />
-            <span className="cartridge-name">{entry.name}</span>
+          <span className="cartridge-label" style={entry.cartridge?.labelColor ? { background: entry.cartridge.labelColor } : undefined}>
+            <CartridgeArt index={index} entry={entry} />
+            <span className="cartridge-name" style={entry.cartridge?.textColor ? { color: entry.cartridge.textColor } : undefined}>
+              {entry.name}
+            </span>
           </span>
-          <span className="cartridge-team">{entry.team}</span>
+          <span className="cartridge-team" style={entry.cartridge?.textColor ? { color: entry.cartridge.textColor } : undefined}>
+            {entry.team}
+          </span>
         </button>
         <button type="button" className="side-panel right" aria-label={t.next} onClick={() => move(1)}>
           ▶

@@ -6,6 +6,7 @@
  * Lire packages/sdk/README.md pour le guide pas à pas.
  */
 import type { ComponentType } from 'react';
+import type { GameFont } from './fonts.ts';
 
 /* ================================================================
  * Écran
@@ -261,10 +262,25 @@ export interface GameProps<TMsg extends GameMessage = GameMessage> {
  * Ce qu'une cartouche exporte par défaut
  * ================================================================ */
 
+/**
+ * Habillage des écrans que la console affiche pour ce jeu (fiche, création et attente de salle, scores).
+ * Ces écrans restent ceux de la console : les salles et les scores marchent pareil pour tous les jeux.
+ */
+export interface GameTheme {
+  /** Image de fond, 240 x 216 : `import fond from './assets/menu.png'`. Un voile sombre garde le texte lisible. */
+  background?: string;
+  /** Couleur d'accent ("#rrggbb") : titre, curseur, ligne choisie. */
+  accent?: string;
+  /** Police du titre (voir `defineFont`). Le reste du texte garde la police de la console. */
+  titleFont?: GameFont;
+}
+
 export interface GameDefinition<TMsg extends GameMessage = GameMessage> {
   component: ComponentType<GameProps<TMsg>>;
   /** 'desc' : plus grand = meilleur (points). 'asc' : plus petit = meilleur (chrono). */
   scoreOrder: 'asc' | 'desc';
   /** Règles affichées avant la partie, 3 lignes courtes maximum, en français et en anglais. */
   howToPlay?: Localized<string[]>;
+  /** Habillage des écrans de la console pour ce jeu : fiche, salle, scores. */
+  theme?: GameTheme;
 }

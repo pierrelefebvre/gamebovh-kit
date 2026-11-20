@@ -51,6 +51,7 @@ export function CartridgeScreen({
 
   return (
     <Frame
+      theme={def?.theme}
       title={
         <>
           <span>{entry.name}</span>
@@ -108,7 +109,7 @@ export function ScoresScreen({
   });
 
   return (
-    <Frame title={t.top10(entry.name)} footer={<Hint>{t.hintBack}</Hint>}>
+    <Frame theme={def.theme} title={t.top10(entry.name)} footer={<Hint>{t.hintBack}</Hint>}>
       {scores === null ? (
         <p className="loading">{t.loading}</p>
       ) : scores.length === 0 ? (

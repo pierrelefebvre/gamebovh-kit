@@ -173,6 +173,7 @@ export function App() {
       screen = (
         <JoinScreen
           entry={view.entry}
+          theme={view.def.theme}
           onBack={() => setView({ name: 'cartridge', entry: view.entry })}
           onJoined={() => setView({ name: 'lobby', entry: view.entry, def: view.def, create: false })}
         />
@@ -183,6 +184,7 @@ export function App() {
       screen = (
         <LobbyScreen
           entry={entry}
+          theme={def.theme}
           create={view.create}
           onLeave={() => setView({ name: 'cartridge', entry })}
           onStart={() => {

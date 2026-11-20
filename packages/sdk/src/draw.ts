@@ -1,7 +1,8 @@
 /** Petits utilitaires d'affichage partagés. */
+import { fontFamily, type GameFont } from './fonts.ts';
 
-/** Police pixel chargée par la console. Taille conseillée : 8px (ou 16px pour les titres). */
-export const FONT = '"Press Start 2P", monospace';
+export { FONT } from './fonts.ts';
+
 
 /** 83456 ms devient "01:23.45". */
 export function formatTime(ms: number): string {
@@ -12,16 +13,19 @@ export function formatTime(ms: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
 }
 
-/** Écrit du texte pixel sur un canvas. `align` : 'left' | 'center' | 'right'. */
+/**
+ * Écrit du texte sur un canvas, avec la police pixel de la console
+ * ou une police du jeu (`font`, voir `defineFont`). `align` : 'left' | 'center' | 'right'.
+ */
 export function drawText(
   g: CanvasRenderingContext2D,
   text: string,
   x: number,
   y: number,
-  options: { color?: string; size?: number; align?: CanvasTextAlign; shadow?: string } = {},
+  options: { color?: string; size?: number; align?: CanvasTextAlign; shadow?: string; font?: GameFont } = {},
 ): void {
   const size = options.size ?? 8;
-  g.font = `${size}px ${FONT}`;
+  g.font = `${size}px ${fontFamily(options.font)}`;
   g.textAlign = options.align ?? 'left';
   g.textBaseline = 'top';
   if (options.shadow) {

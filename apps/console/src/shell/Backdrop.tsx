@@ -15,12 +15,12 @@ export function Backdrop() {
     [],
   );
   const wire = useMemo(() => {
-    let d = 'M0 ';
+    let d = '';
     for (let x = 0; x <= 1600; x += 20) {
       const y = 70 + Math.sin((x / 1600) * Math.PI * 4 + 0.6) * 26;
-      d += `${x === 0 ? '' : 'L'}${x} ${y.toFixed(1)} `;
+      d += `${x === 0 ? 'M' : 'L'}${x} ${y.toFixed(1)} `;
     }
-    return d;
+    return d.trim();
   }, []);
   const flakes = useMemo(
     () =>

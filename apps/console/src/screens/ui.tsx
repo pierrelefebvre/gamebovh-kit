@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { fontFamily, type GameTheme } from '@gamebovh/sdk';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 
 /** Neige qui tombe en fond d'écran (purement décoratif). */
@@ -39,16 +40,33 @@ export function Frame({
   children,
   footer,
   snow = true,
+  theme,
 }: {
   title?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   snow?: boolean;
+  /** Habillage du jeu (fond, couleur d'accent, police du titre), voir GameTheme. */
+  theme?: GameTheme;
 }) {
+  const style: CSSProperties & Record<string, string> = {};
+  if (theme?.background) {
+    // Voile sombre par-dessus l'image : le texte de la console reste lisible.
+    style.backgroundImage = `linear-gradient(rgba(4, 14, 82, 0.55), rgba(4, 14, 82, 0.72)), url("${theme.background}")`;
+  }
+  if (theme?.accent) style['--accent'] = theme.accent;
+  const themed = theme && (theme.background || theme.accent || theme.titleFont);
   return (
-    <div className="frame">
+    <div className={`frame${themed ? ' themed' : ''}`} style={style}>
       {snow && <Snow />}
-      {title && <header className="frame-title">{title}</header>}
+      {title && (
+        <header
+          className={`frame-title${theme?.titleFont ? ' custom-font' : ''}`}
+          style={theme?.titleFont ? { fontFamily: fontFamily(theme.titleFont) } : undefined}
+        >
+          {title}
+        </header>
+      )}
       <div className="frame-body">{children}</div>
       {footer && <footer className="frame-footer">{footer}</footer>}
     </div>

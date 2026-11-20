@@ -6,6 +6,22 @@ export interface CatalogEntry extends GameManifest {
   module: string;
   /** Nom et description en anglais (le reste de la fiche est en français). */
   en: { name: string; description: string };
+  /** Couleurs de la cartouche dans le menu (facultatif) : "#rrggbb". */
+  cartridge?: { color?: string; labelColor?: string; textColor?: string };
+}
+
+/*
+ * Image d'étiquette de chaque cartouche : games/<id>/cartridge.png (84 x 42, ou 168 x 84).
+ * Chargée sans le code du jeu, pour que le menu reste rapide.
+ */
+const covers = import.meta.glob<string>('../../../../games/*/cartridge.png', { eager: true, query: '?url', import: 'default' });
+const coverById = new Map(
+  Object.entries(covers).map(([path, url]) => [path.split('/').slice(-2, -1)[0], url]),
+);
+
+/** Adresse de l'image d'étiquette du jeu, s'il en a une. */
+export function cartridgeImage(id: string): string | undefined {
+  return coverById.get(id);
 }
 
 export interface Catalog {

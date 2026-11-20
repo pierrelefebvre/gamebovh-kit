@@ -12,9 +12,15 @@
  *
  * Langues : la console est en français OU en anglais (`ctx.lang`).
  * Chaque texte affiché est déclaré dans les deux langues avec `defineTexts`.
+ *
+ * Personnalisation (toutes facultatives, toutes dans ce dossier) :
+ *   - cartridge.png (84 x 42, à côté de package.json) : l'image de la cartouche dans le menu ;
+ *   - `theme` dans defineGame (en bas) : fond, couleur et police des écrans de la console pour ce jeu ;
+ *   - `defineFont` : une police à vous, déposée dans src/assets/, utilisable avec drawText.
  */
 import { useRef } from 'react';
 import {
+  defineFont,
   defineGame,
   defineTexts,
   drawText,
@@ -24,12 +30,21 @@ import {
   useGameLoop,
   type GameProps,
 } from '@gamebovh/sdk';
+// Les fichiers de src/assets/ s'importent : on récupère leur adresse.
+import menuBackground from './assets/menu.png';
+import spaceMonoBold from './assets/space-mono-bold.woff2';
 
 /* Toutes les positions sont en pixels de l'écran logique (240 x 216). */
 const PLAYER_WIDTH = 24;
 const PLAYER_Y = 190;
 const PLAYER_SPEED = 0.12; // pixels par milliseconde
 const LIVES = 3;
+
+/*
+ * Une police à nous (Space Mono, licence libre OFL, créditée dans le README).
+ * Elle se charge toute seule au premier drawText qui l'utilise.
+ */
+const TITLE_FONT = defineFont('SpaceMono', spaceMonoBold);
 
 /*
  * Tous les textes du jeu, en français et en anglais.
@@ -137,7 +152,7 @@ function CatchTheFlakes({ ctx }: GameProps) {
     g.fillStyle = PALETTE.ice;
     g.fillRect(0, height - 12, width, 12);
 
-    drawText(g, t.score(s.score), 6, 6);
+    drawText(g, t.score(s.score), 6, 4, { font: TITLE_FONT, size: 12 });
     drawText(g, t.lives(Math.max(0, s.lives)), width - 6, 6, { color: PALETTE.red, align: 'right' });
   });
 
@@ -150,6 +165,12 @@ export default defineGame({
   // Plus de flocons = mieux : le plus grand score gagne.
   scoreOrder: 'desc',
   // Règles affichées par la console avant la partie : 3 lignes max, dans les deux langues.
+  // Habillage des écrans de la console pour ce jeu (fiche, salle, scores). Tout est facultatif.
+  theme: {
+    background: menuBackground, // image 240 x 216
+    accent: '#f2b134', // titre, curseur, ligne choisie
+    titleFont: TITLE_FONT, // police du titre de la fiche
+  },
   howToPlay: {
     fr: ['Déplace-toi avec la croix.', 'Attrape les flocons.', "3 flocons ratés et c'est fini !"],
     en: ['Move with the d-pad.', 'Catch the snowflakes.', 'Miss 3 and it is game over!'],
