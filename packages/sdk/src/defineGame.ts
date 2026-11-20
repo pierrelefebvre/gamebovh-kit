@@ -18,6 +18,9 @@ export function defineGame<TMsg extends GameMessage = GameMessage>(
   if (how !== undefined && (Array.isArray(how) || !Array.isArray((how as { fr?: unknown }).fr) || !Array.isArray((how as { en?: unknown }).en))) {
     throw new Error('defineGame: "howToPlay" must be { fr: [...], en: [...] }.');
   }
+  if (definition.menu !== undefined && definition.menu !== 'console' && definition.menu !== 'game') {
+    throw new Error('defineGame: "menu" must be "console" or "game".');
+  }
   const theme = definition.theme;
   if (theme?.accent !== undefined && !/^#[0-9a-fA-F]{6}$/.test(theme.accent)) {
     throw new Error('defineGame: "theme.accent" must look like "#d7263d".');

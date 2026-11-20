@@ -250,6 +250,8 @@ Tout ce dont votre jeu a besoin passe par `ctx`. **N'allez rien chercher ailleur
 | `storage` | sauvegardes et classement local | `await ctx.storage.getLeaderboard()` |
 | `multiplayer` | salle, joueurs, messages | `ctx.multiplayer.send({ type: 'tir' })` |
 | `seed` | graine aléatoire, la même pour toute la salle | `createRandom(ctx.seed)` |
+| `launch` | comment le jeu a été lancé : `'menu'`, `'solo'` ou `'room'` (utile avec votre propre menu) | `ctx.launch === 'room'` |
+| `console` | ouvrir un écran de la console depuis votre menu | `ctx.console.open('rooms')` |
 | `manifest` | votre ligne de `games.json` | `ctx.manifest.name` |
 
 Hooks et outils fournis : `useGameLoop`, `useButton`, `useCanvas`, `usePaused`, `useRoomPlayers`, `useMessages`, `useScoreGossip`, `drawText`, `formatTime`, `createRandom`, `PALETTE`, `PLAYER_COLORS`.
@@ -402,9 +404,9 @@ git checkout -- chemin/du/fichier
 
 - **Poids** : visez moins de 2 Mo pour tout le dossier de votre jeu. Les joueurs le téléchargeront sur leur téléphone, parfois en 4G.
 
-### Habiller votre jeu : cartouche, fiche, police
+### Habiller votre jeu : cartouche, fiche, menu, police
 
-Tout se fait **dans votre dossier**, rien à toucher ailleurs. Chaque point est facultatif, et la cartouche modèle `games/_template` montre les trois.
+Tout se fait **dans votre dossier**, rien à toucher ailleurs. Chaque point est facultatif. La cartouche modèle `games/_template` montre la cartouche, la fiche et la police ; le menu propre est détaillé ci-dessous.
 
 **1. L'image de la cartouche.** Déposez `games/<votre-jeu>/cartridge.png`, à côté de `package.json` : elle remplace le dessin de l'étiquette dans le menu.
 
@@ -437,7 +439,51 @@ export default defineGame({
 
 Choisissez une image de fond peu chargée : le texte de la console s'écrit par-dessus.
 
-**Votre propre écran titre**, dans le jeu lui-même, est aussi possible : c'est simplement le premier écran de votre composant, avant la partie (logo, « A : jouer », tutoriel...). Exemple : le jeu Snow Off, visible sur la preview des équipes.
+**Votre propre menu (écran titre).** Si vous voulez votre écran titre avec vos boutons (Solo, Multijoueur, Langue, Quitter...), déclarez `menu: 'game'` : la console **saute sa fiche** et lance directement votre jeu, qui affiche son menu. Pour tout ce qui touche aux salles, aux scores et aux réglages, votre menu **ouvre les écrans de la console** : vous ne recodez jamais les salles.
+
+| Bouton de votre menu | Ce que vous appelez |
+| --- | --- |
+| Solo | rien : votre jeu commence sa partie |
+| Multijoueur | `ctx.console.open('rooms')` : créer ou rejoindre une salle (habillés avec votre `theme`) |
+| Rejoindre (si vous le voulez à part) | `ctx.console.open('join')` |
+| Records | `ctx.console.open('scores')` |
+| Langue, réglages | `ctx.console.open('settings')` : au retour, votre jeu est relancé dans la nouvelle langue |
+| Quitter | `ctx.lifecycle.exitToMenu()` : retour au carrousel des cartouches |
+
+Quand un écran de la console s'ouvre, votre jeu se ferme ; il est relancé ensuite. `ctx.launch` vous dit comment :
+
+- `'menu'` : depuis le carrousel ou au retour d'un écran de la console : affichez votre menu ;
+- `'room'` : la partie en salle commence (l'hôte a lancé) : **allez directement au jeu**, sans menu ;
+- `'solo'` : le joueur a choisi « Rejouer » : allez directement au jeu.
+
+```tsx
+function PeakRivals({ ctx }: GameProps) {
+  // En salle ou après « Rejouer », pas de menu : on joue tout de suite.
+  const screen = useRef(ctx.launch === 'menu' ? 'menu' : 'game');
+  const choice = useRef(0); // ligne choisie dans le menu, avec haut / bas
+
+  useButton(ctx, 'a', {
+    onPress: () => {
+      if (screen.current !== 'menu') return;
+      if (choice.current === 0) screen.current = 'game';           // SOLO
+      if (choice.current === 1) ctx.console.open('rooms');         // MULTIJOUEUR
+      if (choice.current === 2) ctx.console.open('settings');      // LANGUE
+      if (choice.current === 3) ctx.lifecycle.exitToMenu();        // QUITTER
+    },
+  });
+  // ... haut / bas pour changer de ligne, dessin du menu ou de la partie dans useGameLoop
+}
+
+export default defineGame({
+  component: PeakRivals,
+  scoreOrder: 'desc',
+  menu: 'game',
+  theme: { background: fond, accent: '#f2b134', titleFont: TITRE }, // pour les écrans de salle et de scores
+  howToPlay: { fr: [...], en: [...] }, // toujours obligatoire
+});
+```
+
+Avec votre propre menu, les règles ne s'affichent plus sur la fiche de la console : prévoyez un **tutoriel** dans votre menu. Pendant une partie en salle, `ctx.console.open()` est ignoré. Le menu pause de la console (Échap, Start + Select) reste disponible partout.
 
 **3. Une police à vous.** Déposez le fichier dans `src/assets/` (`.woff2` de préférence, sinon `.woff`, `.ttf`, `.otf`), déclarez-la, puis utilisez-la avec `drawText` :
 

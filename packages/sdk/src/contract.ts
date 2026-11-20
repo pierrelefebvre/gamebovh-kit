@@ -217,6 +217,27 @@ export interface MultiplayerApi<TMsg extends GameMessage = GameMessage> {
 }
 
 /* ================================================================
+ * Écrans de la console à la demande (jeux avec leur propre menu)
+ * ================================================================ */
+
+/**
+ * Écrans de la console qu'un jeu peut ouvrir depuis son menu :
+ * - 'rooms' : créer ou rejoindre une salle (puis salle d'attente, puis la console relance le jeu dans la salle) ;
+ * - 'join' : directement la saisie d'un code de salle ;
+ * - 'scores' : le classement du jeu ;
+ * - 'settings' : les réglages (langue, pseudo, son...), puis retour au menu du jeu.
+ */
+export type ConsoleScreen = 'rooms' | 'join' | 'scores' | 'settings';
+
+export interface ConsoleApi {
+  /** Ouvre un écran de la console. Le jeu se ferme ; il sera relancé au retour (ctx.launch = 'menu' ou 'room'). */
+  open(screen: ConsoleScreen): void;
+}
+
+/** Comment le jeu a été lancé : son menu ('menu'), une partie solo ('solo') ou une partie en salle ('room'). */
+export type LaunchMode = 'menu' | 'solo' | 'room';
+
+/* ================================================================
  * Contexte transmis au jeu
  * ================================================================ */
 
@@ -242,6 +263,14 @@ export interface GameContext<TMsg extends GameMessage = GameMessage> {
    * Tout texte affiché par le jeu doit exister dans les deux langues (voir `defineTexts`).
    */
   lang: Lang;
+  /**
+   * Comment le jeu a été lancé. Toujours 'solo' ou 'room' pour un jeu sans menu propre.
+   * Avec `menu: 'game'` : 'menu' depuis le carrousel (afficher votre écran titre),
+   * 'solo' pour « Rejouer », 'room' quand la partie en salle commence (aller directement au jeu).
+   */
+  launch: LaunchMode;
+  /** Écrans de la console à ouvrir depuis votre menu (avec `menu: 'game'`). */
+  console: ConsoleApi;
   /**
    * Graine aléatoire de la partie, identique pour tous les joueurs d'une salle.
    * Avec `createRandom(ctx.seed)`, tout le monde obtient la même piste, les mêmes obstacles...
@@ -283,4 +312,9 @@ export interface GameDefinition<TMsg extends GameMessage = GameMessage> {
   howToPlay?: Localized<string[]>;
   /** Habillage des écrans de la console pour ce jeu : fiche, salle, scores. */
   theme?: GameTheme;
+  /**
+   * 'console' (par défaut) : la console affiche la fiche du jeu (règles, Solo, salles, scores) avant la partie.
+   * 'game' : le jeu affiche son propre menu ; il ouvre les écrans de la console avec `ctx.console.open()`.
+   */
+  menu?: 'console' | 'game';
 }

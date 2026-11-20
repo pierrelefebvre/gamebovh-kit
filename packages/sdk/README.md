@@ -106,6 +106,8 @@ Ce que contient `ctx` :
 | `ctx.storage` | Sauvegardes et classement local (section 8) |
 | `ctx.multiplayer` | Salle, joueurs, messages (section 9) |
 | `ctx.seed` | Nombre aléatoire de la partie, le même pour tous les joueurs d'une salle |
+| `ctx.launch` | `'menu'`, `'solo'` ou `'room'` : comment le jeu a été lancé |
+| `ctx.console` | `open('rooms' \| 'join' \| 'scores' \| 'settings')` : écrans de la console, pour un jeu avec son propre menu |
 | `ctx.manifest` | Ta ligne de `games.json`, déjà traduite |
 
 Quand on clique sur « Rejouer », la console recrée ton composant : chaque partie repart de zéro, tu n'as rien à réinitialiser.
@@ -137,7 +139,7 @@ function MonJeu({ ctx }: GameProps) {
 - Le nom et la description de ta ligne de `games.json` ont aussi leur version anglaise, dans `"en"`.
 
 
-### Habillage : cartouche, fiche, police
+### Habillage : cartouche, fiche, menu, police
 
 - **Image de cartouche** : `games/<id>/cartridge.png`, 84 × 42 (ou × 2, × 3), moins de 100 Ko. Couleurs dans `games.json` : `"cartridge": { "color", "labelColor", "textColor" }`.
 - **Fiche du jeu** (fiche, salle, scores, toujours gérés par la console) : `theme` dans `defineGame`.
@@ -146,6 +148,7 @@ function MonJeu({ ctx }: GameProps) {
   theme: { background: fondUrl /* 240 x 216 */, accent: '#f2b134', titleFont: TITLE_FONT }
   ```
 
+- **Menu propre au jeu** : `menu: 'game'` dans `defineGame`. La console saute sa fiche et lance le jeu (`ctx.launch === 'menu'`). Le menu du jeu ouvre les écrans de la console avec `ctx.console.open('rooms' | 'join' | 'scores' | 'settings')` et quitte avec `ctx.lifecycle.exitToMenu()`. Le jeu est relancé au retour ; en salle il démarre avec `ctx.launch === 'room'`, après « Rejouer » avec `'solo'` : aller alors directement à la partie. Exemple complet dans `ETUDIANTS.md`, section 10.
 - **Police du jeu** : `defineFont(nom, url)` puis `drawText(g, texte, x, y, { font })`. Chargée au premier usage, police de la console en secours, moins de 200 Ko, avec accents, licence libre créditée. `loadFont(font)` renvoie une promesse si tu veux attendre le chargement ; `fontFamily(font)` donne la valeur CSS pour un jeu en DOM.
 
 Tout est montré dans `games/_template`.

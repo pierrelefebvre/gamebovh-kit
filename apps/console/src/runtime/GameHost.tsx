@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, type ErrorInfo, type ReactNode } from 'react';
-import type { GameDefinition, GameResult, ScoreEntry } from '@gamebovh/sdk';
+import type { ConsoleScreen, GameDefinition, GameResult, LaunchMode, ScoreEntry } from '@gamebovh/sdk';
 import { createGameSession } from '@gamebovh/sdk/runtime';
 import { Frame, Hint, MenuList, type MenuItem } from '../screens/ui.tsx';
 import { manifestOf, type CatalogEntry } from './catalog.ts';
@@ -23,11 +23,19 @@ export interface GameHostProps {
   def: GameDefinition;
   inRoom: boolean;
   seed: number;
+  /** Comment le jeu est lancé (ctx.launch). */
+  launch: LaunchMode;
   /** Abonnement à la demande de menu (Échap, Start + Select). */
   subscribeMenu: (cb: () => void) => () => void;
   onQuit: () => void;
   onReplay: () => void;
   onLobby: () => void;
+  /** « Menu » sur l'écran de résultats d'une partie solo. */
+  onResultsMenu: () => void;
+  /** ctx.lifecycle.exitToMenu() */
+  onExit: () => void;
+  /** ctx.console.open() */
+  onOpen: (screen: ConsoleScreen) => void;
 }
 
 /**
@@ -36,7 +44,7 @@ export interface GameHostProps {
  * Un nouveau GameHost (nouvelle `key`) = une nouvelle partie propre.
  */
 export function GameHost(props: GameHostProps) {
-  const { entry, def, inRoom, seed, subscribeMenu, onQuit, onReplay, onLobby } = props;
+  const { entry, def, inRoom, seed, launch, subscribeMenu, onQuit, onReplay, onLobby, onExit, onOpen, onResultsMenu } = props;
   const services = useServices();
   const t = useT();
   const [overlay, setOverlay] = useState<Overlay>(null);
@@ -52,6 +60,7 @@ export function GameHost(props: GameHostProps) {
         storage,
         player: { id: services.playerId, nickname: services.settings.nickname || t.defaultPlayer },
         lang: services.lang,
+        launch,
       },
       {
         onGameOver: async (result) => {
@@ -65,7 +74,8 @@ export function GameHost(props: GameHostProps) {
           setOverlay({ kind: 'results', result, entry: saved, rank, record: best?.id === saved.id, top });
           return saved;
         },
-        onExit: () => onQuit(),
+        onExit: () => onExit(),
+        onOpen: (screen) => onOpen(screen),
       },
       inRoom,
       seed,
@@ -124,7 +134,7 @@ export function GameHost(props: GameHostProps) {
       )}
 
       {overlay?.kind === 'results' && (
-        <ResultsOverlay overlay={overlay} inRoom={inRoom} onReplay={onReplay} onLobby={onLobby} onQuit={onQuit} />
+        <ResultsOverlay overlay={overlay} inRoom={inRoom} onReplay={onReplay} onLobby={onLobby} onQuit={inRoom ? onQuit : onResultsMenu} />
       )}
     </div>
   );

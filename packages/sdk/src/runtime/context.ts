@@ -5,7 +5,9 @@ import {
   type GameContext,
   type GameManifest,
   type GameResult,
+  type ConsoleScreen,
   type Lang,
+  type LaunchMode,
   type MultiplayerApi,
   type Player,
   type Room,
@@ -25,11 +27,14 @@ export interface ContextServices {
   storage: GameStorage;
   player: { id: string; nickname: string };
   lang: Lang;
+  launch: LaunchMode;
 }
 
 export interface ContextHooks {
   onGameOver(result: GameResult): Promise<ScoreEntry>;
   onExit(): void;
+  /** Le jeu demande un écran de la console. */
+  onOpen(screen: ConsoleScreen): void;
 }
 
 export interface GameSession {
@@ -159,6 +164,19 @@ export function createGameSession(
     screen: { width: SCREEN_WIDTH, height: SCREEN_HEIGHT },
     player: { ...services.player },
     lang: services.lang,
+    launch: services.launch,
+    console: {
+      open: (screen) => {
+        if (!['rooms', 'join', 'scores', 'settings'].includes(screen)) {
+          throw new Error(`ctx.console.open(): unknown screen "${screen}" (rooms, join, scores, settings).`);
+        }
+        if (roomFor()) {
+          console.warn('[gamebovh] ctx.console.open() ignored during a room game.');
+          return;
+        }
+        if (!disposed) hooks.onOpen(screen);
+      },
+    },
     seed,
     input,
     lifecycle,
