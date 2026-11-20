@@ -1416,6 +1416,57 @@ button {
   cursor: pointer;
 }
 
+.code-keyboard {
+  /* Champ invisible : il ouvre le clavier du téléphone quand on touche le code */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  font-size: 16px;
+  pointer-events: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.tiny {
+  font-size: 5.5px;
+  letter-spacing: 0.06em;
+}
+
+.lobby-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.lobby-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.room-qr svg {
+  display: block;
+  width: 66px;
+  height: 66px;
+  border-radius: 2px;
+}
+
+.room-qr span {
+  font-size: 5px;
+  letter-spacing: 0.08em;
+  color: var(--ice);
+  text-align: center;
+}
+
 .code-slot .arrow {
   font-size: 6px;
   color: transparent;

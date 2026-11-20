@@ -13,6 +13,7 @@ import { MenuScreen } from './screens/Menu.tsx';
 import { NicknameScreen } from './screens/Nickname.tsx';
 import { SettingsScreen } from './screens/Settings.tsx';
 import { Backdrop } from './shell/Backdrop.tsx';
+import { takeRoomLink } from './screens/RoomQr.tsx';
 import { ConsoleShell } from './shell/Console.tsx';
 
 type View =
@@ -24,7 +25,7 @@ type View =
   | { name: 'cartridge'; entry: CatalogEntry }
   | { name: 'scores'; entry: CatalogEntry; def: GameDefinition; from: 'menu' | 'cartridge' | 'game' }
   | { name: 'rooms'; entry: CatalogEntry; def: GameDefinition }
-  | { name: 'join'; entry: CatalogEntry; def: GameDefinition }
+  | { name: 'join'; entry: CatalogEntry; def: GameDefinition; code?: string }
   | { name: 'lobby'; entry: CatalogEntry; def: GameDefinition; create: boolean }
   | {
       name: 'play';
@@ -123,6 +124,21 @@ export function App() {
 
   const toMenu = useCallback(() => setView({ name: 'menu' }), []);
 
+  /*
+   * Lien d'un QR code (?salle=CODE&jeu=ID) : après le démarrage (et le pseudo si besoin),
+   * on ouvre directement l'écran « Rejoindre » avec le code, qui rejoint tout seul.
+   */
+  const roomLinkRef = useRef(takeRoomLink());
+  useEffect(() => {
+    const link = roomLinkRef.current;
+    if (!link || view.name !== 'menu') return;
+    roomLinkRef.current = null;
+    const entry = raw.games.find((g) => g.id === link.gameId);
+    if (!entry) return;
+    const localized = localize(entry, lang);
+    void loadGame(localized).then((def) => setView({ name: 'join', entry: localized, def, code: link.code }));
+  }, [view.name, raw, lang]);
+
   /** Écran de la console demandé par un jeu depuis son menu. */
   const openFromGame = (entry: CatalogEntry, def: GameDefinition, screen: ConsoleScreen) => {
     if (screen === 'rooms') setView({ name: 'rooms', entry, def });
@@ -132,6 +148,7 @@ export function App() {
   };
   const afterBoot = useCallback(() => {
     if (!services.settings.nickname) setView({ name: 'nickname', then: { name: 'menu' } });
+    else if (roomLinkRef.current) setView({ name: 'menu' }); // le lien de salle prend la main
     else if (catalog.games.length === 1 && import.meta.env.VITE_ONLY_GAME) {
       const entry = catalog.games[0];
       void loadGame(entry).then(
@@ -225,6 +242,7 @@ export function App() {
         <JoinScreen
           entry={view.entry}
           theme={view.def.theme}
+          initialCode={view.code}
           onBack={() => setView(homeOf(view.entry, view.def))}
           onJoined={() => setView({ name: 'lobby', entry: view.entry, def: view.def, create: false })}
         />

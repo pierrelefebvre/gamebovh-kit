@@ -12,7 +12,7 @@
   ],
   "files": {
     "apps/console/index.html": "7455df8ee4d200ab144970c8267f0511be0fc143e4659d20fd002f03467afe8a",
-    "apps/console/package.json": "c5253eaeb9753b1f867bc6de90c9eab2ee5c31c92b05e4c348b075b85d82b18e",
+    "apps/console/package.json": "64acabd18dd4f6b8a7dd2daef37f4158d387bea40fd9310e4f641c15630d7c04",
     "apps/console/public/apple-touch-icon.png": "11968f76df0319b98f624c623cae8a90d36f8920ee92e851b0c917b28acbaf09",
     "apps/console/public/config.js": "c047076dd599de63674faf16110200438321032563c66298fda02872fd0fbd8e",
     "apps/console/public/favicon.svg": "c209b64a2473d67610a7a1fd26b60ed834bec67d80169001ac371aacfbe2149c",
@@ -21,9 +21,9 @@
     "apps/console/public/icon.svg": "53a908a5749f63cd6b1655bdbdba160e8ced085128d2df1f01757144711b7e7a",
     "apps/console/public/manifest.webmanifest": "ad5df72a2d3ec7de8fc1bbd398ca75f925d301b75e8e944022949db1d466cc17",
     "apps/console/public/sw.js": "5af09f0c68c448d03799e3b04a47c6e30c47fd42cd3218a1f81d48fa10f1525f",
-    "apps/console/src/App.tsx": "e16f12876970ab359ecbdb002eabb5ded9a59b710a2ec37a85a608107b3492d1",
+    "apps/console/src/App.tsx": "bc25995f90e78253d0346b20ab52c52d4373850a445b1d804f1b8c472166a55b",
     "apps/console/src/assets/ovhcloud-logo.svg": "70850964d3f660c71a412f8968a86a20b8846bf086e1e35a985b2468787d1243",
-    "apps/console/src/i18n.ts": "4bcabae470886041017e884edfc8f2b782af2bbc359298f81c98afaa30278dde",
+    "apps/console/src/i18n.ts": "85cf1158c62dd37661dfa437c39067810d75c7e19df8cabf28a31b1213fb61b4",
     "apps/console/src/input/hardware.ts": "526589a6e9839414f3d662d68edaab541cde4a222d764ec9176b35d7eb7dcd47",
     "apps/console/src/input/layout.ts": "d054a451c757176bf5f89388aa3e5dbbc4785fc0076a1cd19000e233850341be",
     "apps/console/src/main.tsx": "1033c7d653aad8ecef16a4209f0f940a806bc63484535f374b3e0b9dab7da87a",
@@ -34,9 +34,10 @@
     "apps/console/src/runtime/services.tsx": "70561d31c294dc26d58f27e5360a37484df9b5a416d8590a0b39b587b7830be4",
     "apps/console/src/screens/Boot.tsx": "55c0c57c1eb1120f12663e163987061eda81f5e41aa216b0352972ce93527256",
     "apps/console/src/screens/Cartridge.tsx": "e137ee3881116818757bbef288774f5032c7aea05784d301f32e7fc7661fbe88",
-    "apps/console/src/screens/Lobby.tsx": "30f18bcd6af7d2f9c93cd2deda0b12cc9fc92c5712a61fdccefec2ef69cf2aca",
+    "apps/console/src/screens/Lobby.tsx": "7ee2f0ba808006a7707b71696f59613733215a8972e6900fb16bff87af456671",
     "apps/console/src/screens/Menu.tsx": "ba08e09e96055dc148df447fdcd2b57a0e94f6346c2827a2ffba6d8e92d3eef0",
     "apps/console/src/screens/Nickname.tsx": "c445474afaed12defb09930d3a38f89f28c9e372e0c384ed9fe400a756f918ca",
+    "apps/console/src/screens/RoomQr.tsx": "50528307575f9608ad0f0a731405893824082e019b0f5978f0136717eb21841c",
     "apps/console/src/screens/Settings.tsx": "4e5fe64ca6e27b47f8f795ba67f71353159fc6a4cf8d1f911cda22e5d34dc038",
     "apps/console/src/screens/ui.tsx": "031964645da5180c5eda189623a97179bc825c81dde67de579ed3aeafd1009b1",
     "apps/console/src/shell/Backdrop.tsx": "bceaa25456756e857266296234e62c2c25c2d12c7c457e96eab2c797fb38f82c",
@@ -44,7 +45,7 @@
     "apps/console/src/shell/Controls.tsx": "b8782a9d132cd4cc30b187e276f8789f29cb845f2bff67ab3452b6a232227741",
     "apps/console/src/shell/OvhLogo.tsx": "608a24fc7a94333cf69d73b2490c1852fc8c5f1be80417717b37c241fc75845f",
     "apps/console/src/shell/ovhLogo.ts": "111d1cd528e03086f210165f43a5f77067c3e994659445010cd9d47dffb282ca",
-    "apps/console/src/styles/console.css": "0eb048a0bd4fa9c6699a7740ff7a171809f1825f5926764f54d5d90d4bd91500",
+    "apps/console/src/styles/console.css": "576dd3fda3d9a114082bd4c0df79f05e6f6ae6e91b7a1bfa46fb01d8759a437a",
     "apps/console/src/vite-env.d.ts": "396c75a09897aad07483cca87d756d7bfb657e0a48743e4004ce54bf7ccaba9c",
     "apps/console/tsconfig.json": "55f70ed2825f44f6a9b4000913414ac02375f0fab9dc4bd1e94ce202151b8416",
     "apps/console/vite.config.ts": "253cc13e729e58dc07e4f68b57b5e3745a80bc82b9442fbbae8ad381a9685a34",
@@ -112,7 +113,7 @@
     ".gitignore": "4f4a7dd382e64dac3d6b67c5b99f27554a33418866a2610614f27ff312f1b4bf",
     "README.md": "c0183fa86d20c6bcb1fa82a9d11c88a21bda379a51960311cbffffbe49133355",
     "CONSIGNES.md": "5c9492ae61318e3cbe7568abdbc75eda6e07fdc635279312f696eafec6e12561",
-    "ETUDIANTS.md": "bc4c5df037f627621054a95c0b3c322e769a7a5856ac22efce84bb96dde7348d"
+    "ETUDIANTS.md": "4746c7d5b81bd0487789bb1a27b6c29aa15236732e8b058e2bf8874a90cbd47b"
   },
   "games": [
     {

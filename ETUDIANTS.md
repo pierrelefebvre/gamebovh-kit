@@ -301,8 +301,8 @@ La cartouche modèle `games/_template` montre l'exemple complet. Testez toujours
 
 La console fait tout le travail de salle à votre place :
 
-1. Un joueur choisit **Créer une salle** : la console affiche un code de 4 lettres.
-2. Jusqu'à 3 autres joueurs choisissent **Rejoindre une salle** et tapent ce code.
+1. Un joueur choisit **Créer une salle** : la console affiche un code de 4 lettres et un **QR code**.
+2. Jusqu'à 3 autres joueurs **scannent le QR code** avec l'appareil photo de leur téléphone (ils arrivent directement dans la salle), ou choisissent **Rejoindre une salle** et tapent le code (au clavier, ou au clavier du téléphone en touchant le code).
 3. L'hôte (le premier arrivé) appuie sur A : **votre jeu démarre chez tout le monde en même temps**, avec la **même `ctx.seed`**.
 
 Dans votre jeu :

@@ -8,6 +8,7 @@ import { PLAYER_COLORS, type GameTheme, type Room } from '@gamebovh/sdk';
 import type { CatalogEntry } from '../runtime/catalog.ts';
 import { useConsoleButtons, useServices } from '../runtime/services.tsx';
 import { Frame, Hint } from './ui.tsx';
+import { RoomQr, roomLink } from './RoomQr.tsx';
 import { useT, type Strings } from '../i18n.ts';
 
 
@@ -38,24 +39,37 @@ function useRoom(): Room | null {
 export function JoinScreen({
   entry,
   theme,
+  initialCode,
   onBack,
   onJoined,
 }: {
   entry: CatalogEntry;
   theme?: GameTheme;
+  /** Code déjà connu (lien d'un QR code) : la salle est rejointe tout de suite. */
+  initialCode?: string;
   onBack: () => void;
   onJoined: () => void;
 }) {
   const { net, audio } = useServices();
   const t = useT();
-  const [letters, setLetters] = useState<number[]>(() => Array(ROOM_CODE_LENGTH).fill(0));
+  const [letters, setLetters] = useState<number[]>(() => {
+    const start = normalizeRoomCode(initialCode ?? '');
+    return Array.from({ length: ROOM_CODE_LENGTH }, (_, i) => Math.max(0, ROOM_CODE_ALPHABET.indexOf(start[i] ?? 'A')));
+  });
   const [pos, setPos] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const code = letters.map((i) => ROOM_CODE_ALPHABET[i]).join('');
+  const input = useRef<HTMLInputElement>(null);
+
+  // Valeurs à jour pour les écouteurs du clavier.
+  const latest = useRef({ letters, pos, busy });
+  latest.current = { letters, pos, busy };
+  const latestBack = useRef(onBack);
+  latestBack.current = onBack;
 
   const submit = async (value = code) => {
-    if (busy) return;
+    if (latest.current.busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -69,6 +83,34 @@ export function JoinScreen({
       setBusy(false);
     }
   };
+
+  /** Lettres tapées au clavier (ordinateur ou téléphone), une ou plusieurs d'un coup : à la dernière case, on rejoint. */
+  const typeLetters = (indexes: number[]) => {
+    if (!indexes.length) return;
+    let { letters: next, pos: p } = latest.current;
+    next = [...next];
+    let complete = false;
+    for (const idx of indexes) {
+      next[p] = idx;
+      if (p >= ROOM_CODE_LENGTH - 1) {
+        complete = true;
+        break;
+      }
+      p++;
+    }
+    latest.current = { ...latest.current, letters: next, pos: p };
+    setLetters(next);
+    setPos(p);
+    audio.play('blip');
+    if (complete) void submit(next.map((i) => ROOM_CODE_ALPHABET[i]).join(''));
+  };
+  const eraseLetter = () => setPos((p) => Math.max(0, p - 1));
+
+  // Lien d'un QR code : on rejoint sans attendre.
+  useEffect(() => {
+    if (initialCode && normalizeRoomCode(initialCode).length === ROOM_CODE_LENGTH) void submit(normalizeRoomCode(initialCode));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const bump = (delta: number) =>
     setLetters((l) => l.map((v, i) => (i === pos ? (v + delta + ROOM_CODE_ALPHABET.length) % ROOM_CODE_ALPHABET.length : v)));
@@ -91,21 +133,44 @@ export function JoinScreen({
     if (b !== 'start') audio.play('blip');
   });
 
-  // Clavier physique : taper le code.
+  // Clavier d'ordinateur (et clavier d'iPhone, qui envoie aussi les touches) : taper le code.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey || e.key.length !== 1) return;
-      const ch = normalizeRoomCode(e.key);
-      const idx = ROOM_CODE_ALPHABET.indexOf(ch);
+      if (e.ctrlKey || e.metaKey || e.altKey || latest.current.busy) return;
+      if (e.key === 'Backspace' || e.key === 'Escape') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        // Échap, ou retour arrière sur la première case : on quitte l'écran (Z / W tapent des lettres ici).
+        if (e.key === 'Escape' || latest.current.pos === 0) latestBack.current();
+        else eraseLetter();
+        return;
+      }
+      if (e.key.length !== 1) return;
+      const idx = ROOM_CODE_ALPHABET.indexOf(normalizeRoomCode(e.key));
       if (idx < 0) return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      setLetters((l) => l.map((v, i) => (i === pos ? idx : v)));
-      setPos((p) => Math.min(ROOM_CODE_LENGTH - 1, p + 1));
+      typeLetters([idx]);
     };
     window.addEventListener('keydown', onKey, { capture: true });
     return () => window.removeEventListener('keydown', onKey, { capture: true });
-  }, [pos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Clavier du téléphone (Android n'envoie pas les touches) : on lit ce qui arrive dans le champ caché. */
+  const onSoftInput = () => {
+    const el = input.current;
+    if (!el) return;
+    const typed = normalizeRoomCode(el.value);
+    el.value = '';
+    typeLetters([...typed].map((ch) => ROOM_CODE_ALPHABET.indexOf(ch)).filter((idx) => idx >= 0));
+  };
+
+  /** Toucher le code ouvre le clavier du téléphone. */
+  const openKeyboard = (slot: number) => {
+    setPos(slot);
+    input.current?.focus({ preventScroll: true });
+  };
 
   return (
     <Frame
@@ -122,18 +187,30 @@ export function JoinScreen({
       <p className="center small">{t.enterCode}</p>
       <div className="code-input">
         {letters.map((v, i) => (
-          <button
-            type="button"
-            key={i}
-            className={`code-slot${i === pos ? ' is-selected' : ''}`}
-            onClick={() => setPos(i)}
-          >
+          <button type="button" key={i} className={`code-slot${i === pos ? ' is-selected' : ''}`} onClick={() => openKeyboard(i)}>
             <span className="arrow">▲</span>
             {ROOM_CODE_ALPHABET[v]}
             <span className="arrow">▼</span>
           </button>
         ))}
+        <input
+          ref={input}
+          className="code-keyboard"
+          type="text"
+          inputMode="text"
+          autoCapitalize="characters"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="go"
+          aria-label={t.enterCode}
+          onInput={onSoftInput}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') void submit();
+          }}
+        />
       </div>
+      <p className="center tiny dim">{t.tapToType}</p>
       <button type="button" className="code-go" onClick={() => void submit()} disabled={busy}>
         {busy ? t.connectingCaps : t.joinCaps}
       </button>
@@ -210,6 +287,8 @@ export function LobbyScreen({
         </>
       }
     >
+      <div className="lobby-row">
+        <div className="lobby-main">
       <div className="room-code">
         <span className="small">{t.code}</span>
         <strong>{room?.code ?? '····'}</strong>
@@ -229,6 +308,9 @@ export function LobbyScreen({
           );
         })}
       </ul>
+        </div>
+        {room && players.length < entry.maxPlayers && <RoomQr text={roomLink(room.code, entry.id)} label={t.scanToJoin} />}
+      </div>
       <p className={`center small${error ? ' error-text' : ' blink'}`}>{info}</p>
     </Frame>
   );
