@@ -137,8 +137,12 @@ export function loadGame(entry: CatalogEntry): Promise<GameDefinition> {
 }
 
 /** Fiche de la cartouche dans la langue demandée. */
+/**
+ * Fiche de la cartouche dans la langue demandée.
+ * Le nom du jeu s'affiche toujours en anglais (son titre international) ; la description suit la langue.
+ */
 export function localize(entry: CatalogEntry, lang: Lang): CatalogEntry {
-  return lang === 'en' ? { ...entry, name: entry.en.name, description: entry.en.description } : entry;
+  return { ...entry, name: entry.en.name, description: lang === 'en' ? entry.en.description : entry.description };
 }
 
 export function manifestOf(entry: CatalogEntry): GameManifest {

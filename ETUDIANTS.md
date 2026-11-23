@@ -160,7 +160,7 @@ Ajoutez **une seule ligne** à la fin de la liste `games`, sans toucher aux autr
 | Champ | Règle |
 | --- | --- |
 | `id` | identique au nom du dossier |
-| `name` | court : il doit tenir sur la cartouche du menu (environ 18 caractères) |
+| `name` | court : il doit tenir sur la cartouche du menu (environ 18 caractères). La console affiche toujours le **nom anglais** (`en.name`), dans les deux langues : c'est le titre du jeu |
 | `team` | le nom de votre équipe |
 | `version` | `1.0.0`, puis augmentez à chaque version rendue |
 | `description` | 2 lignes au maximum à l'écran |
@@ -292,7 +292,7 @@ function CourseDeLuges({ ctx }: GameProps) {
 | --- | --- |
 | Votre code | tous les textes affichés, avec `defineTexts` (une clé oubliée d'un côté fait échouer `pnpm check`) |
 | `howToPlay` | `{ fr: [...], en: [...] }`, 3 lignes dans chaque langue |
-| `games.json` | `name` et `description` en français, et leur version anglaise dans `"en"` |
+| `games.json` | `name` et `description` en français, et leur version anglaise dans `"en"`. Le nom affiché est toujours `en.name` |
 | Vos images | évitez d'y écrire du texte ; sinon, une image par langue |
 
 La cartouche modèle `games/_template` montre l'exemple complet. Testez toujours votre jeu dans les deux langues.

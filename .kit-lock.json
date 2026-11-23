@@ -28,7 +28,7 @@
     "apps/console/src/input/layout.ts": "d054a451c757176bf5f89388aa3e5dbbc4785fc0076a1cd19000e233850341be",
     "apps/console/src/main.tsx": "1033c7d653aad8ecef16a4209f0f940a806bc63484535f374b3e0b9dab7da87a",
     "apps/console/src/runtime/GameHost.tsx": "9b5084e65ad1a95a2b6da04e2043d4026e4ede20d6fe8719c53e0766428b1042",
-    "apps/console/src/runtime/catalog.ts": "6118e5588854853e85fb5ecf35b4e6623d93c7d28ae0e455757d2fa6e9b176c8",
+    "apps/console/src/runtime/catalog.ts": "d38e8e0d8fc155fb92614083bb417f958849e1769bba31af6e46102306ce062f",
     "apps/console/src/runtime/config.ts": "76befa7148b44d6dc6ca310f0824ae0901a534eb2b7fdbe906c25a8b06829292",
     "apps/console/src/runtime/install.ts": "811d01d8e633fcae1aa1bba52ce59d7894eaa4934597710dd45a84163e346ea4",
     "apps/console/src/runtime/services.tsx": "70561d31c294dc26d58f27e5360a37484df9b5a416d8590a0b39b587b7830be4",
@@ -113,7 +113,7 @@
     ".gitignore": "4f4a7dd382e64dac3d6b67c5b99f27554a33418866a2610614f27ff312f1b4bf",
     "README.md": "c0183fa86d20c6bcb1fa82a9d11c88a21bda379a51960311cbffffbe49133355",
     "CONSIGNES.md": "5c9492ae61318e3cbe7568abdbc75eda6e07fdc635279312f696eafec6e12561",
-    "ETUDIANTS.md": "4746c7d5b81bd0487789bb1a27b6c29aa15236732e8b058e2bf8874a90cbd47b"
+    "ETUDIANTS.md": "61414e6ba3f60751703155d88c2c6b588e32a1992e6b0c99d87d43f10b4e6b17"
   },
   "games": [
     {
