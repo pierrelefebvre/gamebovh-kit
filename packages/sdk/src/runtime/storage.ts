@@ -106,6 +106,19 @@ export function compareScores(order: 'asc' | 'desc') {
     (order === 'asc' ? a.score - b.score : b.score - a.score) || a.date - b.date;
 }
 
+/**
+ * Une seule ligne par joueur : son meilleur score (à égalité, le plus ancien).
+ * Le joueur est identifié par l'appareil (`playerId`), pas par le pseudo : deux homonymes restent distincts.
+ */
+export function bestPerPlayer(list: ScoreEntry[], order: 'asc' | 'desc'): ScoreEntry[] {
+  const seen = new Set<string>();
+  return [...list].sort(compareScores(order)).filter((e) => {
+    if (seen.has(e.playerId)) return false;
+    seen.add(e.playerId);
+    return true;
+  });
+}
+
 function isScoreEntry(e: unknown, gameId: string): e is ScoreEntry {
   if (!e || typeof e !== 'object') return false;
   const s = e as ScoreEntry;
@@ -171,19 +184,21 @@ export class GameStorage implements StorageApi {
     return next;
   }
 
+  /** Classement : le meilleur score de chaque joueur, du meilleur au moins bon. */
   async getLeaderboard(limit = 10): Promise<ScoreEntry[]> {
     await this.queue;
-    return (await this.readScores()).sort(compareScores(this.scoreOrder)).slice(0, limit);
+    return bestPerPlayer(await this.readScores(), this.scoreOrder).slice(0, limit);
   }
 
   async getPersonalBest(): Promise<ScoreEntry | undefined> {
     await this.queue;
-    return (await this.readScores())
-      .filter((e) => e.playerId === this.playerId)
-      .sort(compareScores(this.scoreOrder))[0];
+    return bestPerPlayer(await this.readScores(), this.scoreOrder).find((e) => e.playerId === this.playerId);
   }
 
-  /** Enregistre un score de ce joueur. Renvoie l'entrée et son rang (1 = premier). */
+  /**
+   * Enregistre un score de ce joueur. Seul son meilleur score reste au classement.
+   * Renvoie l'entrée et le rang du joueur (1 = premier).
+   */
   addScore(input: { nickname: string; score: number; display?: string }): Promise<{ entry: ScoreEntry; rank: number }> {
     return this.serial(async () => {
       const entry: ScoreEntry = {
@@ -195,9 +210,9 @@ export class GameStorage implements StorageApi {
         display: input.display,
         date: Date.now(),
       };
-      const list = [...(await this.readScores()), entry].sort(compareScores(this.scoreOrder));
-      const kept = list.slice(0, LEADERBOARD_SIZE);
-      const rank = list.indexOf(entry) + 1;
+      const kept = bestPerPlayer([...(await this.readScores()), entry], this.scoreOrder).slice(0, LEADERBOARD_SIZE);
+      const position = kept.findIndex((e) => e.playerId === this.playerId);
+      const rank = position >= 0 ? position + 1 : kept.length + 1;
       await this.store.set(this.scoresKey, kept);
       return { entry, rank };
     });
@@ -207,7 +222,8 @@ export class GameStorage implements StorageApi {
     return this.serial(async () => {
       if (!Array.isArray(entries)) return 0;
       const current = await this.readScores();
-      const ids = new Set(current.map((e) => e.id));
+      const before = new Set(current.map((e) => e.id));
+      const ids = new Set(before);
       let added = 0;
       for (const raw of entries.slice(0, LEADERBOARD_SIZE)) {
         if (!isScoreEntry(raw, this.gameId) || ids.has(raw.id)) continue;
@@ -224,9 +240,10 @@ export class GameStorage implements StorageApi {
         added++;
       }
       if (added === 0) return 0;
-      const kept = current.sort(compareScores(this.scoreOrder)).slice(0, LEADERBOARD_SIZE);
+      const kept = bestPerPlayer(current, this.scoreOrder).slice(0, LEADERBOARD_SIZE);
       await this.store.set(this.scoresKey, kept);
-      return added;
+      // Nouveaux scores réellement gardés (un score moins bon qu'un record connu ne compte pas).
+      return kept.filter((e) => !before.has(e.id)).length;
     });
   }
 }
